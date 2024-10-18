@@ -1,0 +1,87 @@
+.theme-navbar {
+    background: white;
+    color: black;
+    position: fixed;
+    bottom: 0;
+    padding: 1rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.color-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center; 
+    align-items: center;
+    flex-direction: row; 
+}
+
+.color-btn {
+    border: 2px solid black !important;
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: pointer;
+    width: 120px;
+    height: 50px;
+    color: #fff;
+    font-size: 1rem;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.color-btn:hover {
+    opacity: 0.9;
+}
+
+/* Modal */
+.color-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 300px;
+    /* Set maximum width */
+}
+
+input[type="color"] {
+    width: 150px;
+    /* Adjust width of color picker */
+    height: 50px;
+    /* Adjust height of color picker */
+    border: none;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+}
+
+.close-btn {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.close-btn:hover {
+    background-color: #555;
+}

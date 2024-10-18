@@ -1,0 +1,53 @@
+.header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    height: 70px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header content container with max-width */
+.header-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+    font-family: var(--font-family);
+    font-size: 24px;
+    margin: 0;
+}
+
+
+.nav {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    /* Adds space between navigation items */
+}
+
+.nav-item {
+    list-style: none;
+    /* Removes bullet points */
+}
+
+.nav-link {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px 15px;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+    color: var(--primary-color);
+    /* Optionally change the hover color */
+}
