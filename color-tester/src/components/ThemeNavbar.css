@@ -1,9 +1,10 @@
 .theme-navbar {
-    background: white;
+    background: rgba(255, 255, 255, 0.7);
+    font-family: Poppins;
     color: black;
     position: fixed;
     bottom: 0;
-    padding: 1rem 1rem;
+    padding: 0.5rem 1rem;
     border-radius: 6px;
     margin-bottom: 20px;
     display: flex;
@@ -85,3 +86,52 @@ input[type="color"] {
 .close-btn:hover {
     background-color: #555;
 }
+
+
+
+/** The dropdown styling **/
+.font-picker-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 200px;
+    margin: 10px 0;
+  }
+  
+  .font-picker-wrapper select {
+    width: 100%;
+    padding: 15px 15px;
+    font-size: 16px;
+    font-family: inherit; /* Ensure the select inherits the page's font */
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    appearance: none; /* Remove default dropdown arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+  .font-picker-wrapper select:hover {
+    border-color: #000000; /* Add hover effect */
+  }
+  
+  .font-picker-wrapper select:focus {
+    outline: none;
+    border-color: #000000; /* Highlighted border on focus */
+  }
+  
+  .font-picker-wrapper::after {
+    content: "▼"; /* Custom dropdown arrow */
+    font-size: 12px;
+    color: #8884d8;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .font-picker-wrapper select:focus-visible {
+    outline: none;
+  }
+  

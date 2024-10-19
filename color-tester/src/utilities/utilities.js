@@ -25,3 +25,10 @@ export const isColorLight = (color) => {
   // Return true if the color is light
   return luminance > 0.5;
 };
+
+export const getCSSVariableValue = (variable) => {
+    const value = getComputedStyle(document.documentElement)
+      .getPropertyValue(variable)
+      .trim();
+    return rgbaToHex(value); // Convert to hex if needed
+  };

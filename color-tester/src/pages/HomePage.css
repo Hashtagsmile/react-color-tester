@@ -1,16 +1,20 @@
 /* HomePage.css */
+
+.main-section {
+  display: flex;
+  flex-direction: column;
+}
 .hero-section {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items:flex-start;
     padding: 2rem;
-    width: 100vw; /* Full screen width */
+    padding-top: 10%;
     box-sizing: border-box;
   }
   
   .hero-text {
-    flex: 1;
-    padding-right: 2rem;
+    margin-top: 0px;
     max-width: 600px;
     text-align: left;
   }
@@ -50,16 +54,18 @@
 
   .btn:hover {
     background-color: var(--color-accent);
+    border: 1px solid var(--color-accent);
   }
   
   .how-btn {
     background-color: var(--color-secondary);
-    border: 1px solid #ccc;
-    color: #333;
+    border: 1px solid var(--color-secondary);
+    color: var(--color-text);
   }
   
   .start-btn {
     background-color: var(--color-primary);
+    border: 1px solid var(--color-secondary);
     color: #333;
   }
   
@@ -71,3 +77,32 @@
   }
   
   
+  .features-section{
+    margin-top: 6rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin-bottom: 10rem;
+  }
+
+  .intro {
+    color: var(--color-text);
+    font-size: 32px;
+    font-weight: 700;
+  }
+
+  .intro.title{
+    color: var(--color-accent);
+    font-weight: 500;
+    font-size: 12px;
+    padding-bottom: 0.8rem;
+  }
+
+  .features-container{
+    margin-top: 3rem;
+    display: flex;
+    justify-content: row;
+    align-content: space-between;
+    width: 100%;
+    gap: 2rem;
+  }

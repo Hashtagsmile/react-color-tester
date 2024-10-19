@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {isColorLight, rgbaToHex} from "../utilities/utilities";
+import { isColorLight, getCSSVariableValue } from "../utilities/utilities";
 import "./ThemeNavbar.css";
 
 const ThemeNavBar = () => {
-  // Function to get CSS variable values
-  const getCSSVariableValue = (variable) => {
-    const value = getComputedStyle(document.documentElement)
-      .getPropertyValue(variable)
-      .trim();
-    return rgbaToHex(value); // Convert to hex if needed
-  };
-
   const [primaryColor, setPrimaryColor] = useState(
     getCSSVariableValue("--color-primary")
   );
@@ -22,6 +14,9 @@ const ThemeNavBar = () => {
   );
   const [accentColor, setAccentColor] = useState(
     getCSSVariableValue("--color-accent")
+  );
+  const [secondaryColor, setSecondaryColor] = useState(
+    getCSSVariableValue("--color-secondary")
   );
 
   // Font state
@@ -41,8 +36,19 @@ const ThemeNavBar = () => {
     );
     document.documentElement.style.setProperty("--color-text", textColor);
     document.documentElement.style.setProperty("--color-accent", accentColor);
+    document.documentElement.style.setProperty(
+      "--color-secondary",
+      secondaryColor
+    );
     document.documentElement.style.setProperty("--font-family", font);
-  }, [primaryColor, backgroundColor, textColor, accentColor, font]);
+  }, [
+    primaryColor,
+    backgroundColor,
+    textColor,
+    accentColor,
+    secondaryColor,
+    font,
+  ]);
 
   const openColorPicker = (colorType) => {
     setActiveColorType(colorType);
@@ -59,10 +65,29 @@ const ThemeNavBar = () => {
     const newColor = e.target.value;
     setSelectedColor(newColor);
 
-    if (activeColorType === "primaryColor") setPrimaryColor(newColor);
-    if (activeColorType === "backgroundColor") setBackgroundColor(newColor);
-    if (activeColorType === "textColor") setTextColor(newColor);
-    if (activeColorType === "accentColor") setAccentColor(newColor);
+    // Dispatch the custom event to notify other components
+    const colorChangeEvent = new Event("colorChange");
+    window.dispatchEvent(colorChangeEvent); // Trigger event globally
+
+    switch (activeColorType) {
+      case "primaryColor":
+        setPrimaryColor(newColor);
+        break;
+      case "backgroundColor":
+        setBackgroundColor(newColor);
+        break;
+      case "textColor":
+        setTextColor(newColor);
+        break;
+      case "secondaryColor":
+        setSecondaryColor(newColor);
+        break;
+      case "accentColor":
+        setAccentColor(newColor);
+        break;
+      default:
+        break;
+    }
   };
 
   const closeModal = () => {
@@ -77,9 +102,9 @@ const ThemeNavBar = () => {
           className="color-btn"
           style={{
             backgroundColor: textColor,
-            color: isColorLight(textColor) ? "#000" : "#fff" // Adjust text color based on background
+            color: isColorLight(textColor) ? "#000" : "#fff", // Adjust text color based on background
           }}
-          onClick={() => openColorPicker('textColor')}
+          onClick={() => openColorPicker("textColor")}
         >
           Text
         </button>
@@ -87,9 +112,9 @@ const ThemeNavBar = () => {
           className="color-btn"
           style={{
             backgroundColor: backgroundColor,
-            color: isColorLight(backgroundColor) ? "#000" : "#fff"
+            color: isColorLight(backgroundColor) ? "#000" : "#fff",
           }}
-          onClick={() => openColorPicker('backgroundColor')}
+          onClick={() => openColorPicker("backgroundColor")}
         >
           Background
         </button>
@@ -97,19 +122,29 @@ const ThemeNavBar = () => {
           className="color-btn"
           style={{
             backgroundColor: primaryColor,
-            color: isColorLight(primaryColor) ? "#000" : "#fff"
+            color: isColorLight(primaryColor) ? "#000" : "#fff",
           }}
-          onClick={() => openColorPicker('primaryColor')}
+          onClick={() => openColorPicker("primaryColor")}
         >
           Primary
         </button>
         <button
           className="color-btn"
           style={{
-            backgroundColor: accentColor,
-            color: isColorLight(accentColor) ? "#000" : "#fff"
+            backgroundColor: secondaryColor,
+            color: isColorLight(secondaryColor) ? "#000" : "#fff",
           }}
-          onClick={() => openColorPicker('accentColor')}
+          onClick={() => openColorPicker("secondaryColor")}
+        >
+          Secondary
+        </button>
+        <button
+          className="color-btn"
+          style={{
+            backgroundColor: accentColor,
+            color: isColorLight(accentColor) ? "#000" : "#fff",
+          }}
+          onClick={() => openColorPicker("accentColor")}
         >
           Accent
         </button>
@@ -120,6 +155,15 @@ const ThemeNavBar = () => {
             <option value="Helvetica">Helvetica</option>
             <option value="Courier New">Courier New</option>
             <option value="Georgia">Georgia</option>
+            <option value="Roboto">Roboto</option>
+            <option value="Open Sans">Open Sans</option>
+            <option value="Lato">Lato</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Oswald">Oswald</option>
+            <option value="Poppins">Poppins</option>
+            <option value="Merriweather">Merriweather</option>
+            <option value="Lobster">Lobster</option>
+            <option value="Raleway">Raleway</option>
           </select>
         </div>
       </div>
@@ -132,7 +176,9 @@ const ThemeNavBar = () => {
               value={selectedColor}
               onChange={handleColorChange}
             />
-            <button onClick={closeModal} className="close-btn">Close</button>
+            <button onClick={closeModal} className="close-btn">
+              Close
+            </button>
           </div>
         </div>
       )}

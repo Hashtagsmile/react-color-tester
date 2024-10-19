@@ -1,0 +1,39 @@
+.widget-card {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+    width: 100%;
+    padding: 0.5rem 2.5rem;
+    border-radius: 6px;
+}
+
+.top-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.title{
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.percentage{
+    font-size: 14px;
+}
+
+.percentage.positive{
+    color: green;
+}
+
+.percentage.negative{
+    color: red;
+}
+
+.bottom-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    font-size: 28px;
+    font-weight: 700;
+}
