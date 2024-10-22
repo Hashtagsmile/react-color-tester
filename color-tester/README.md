@@ -23,6 +23,6 @@ To run this application, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/your-username/your-repo-name.git](https://github.com/Hashtagsmile/react-color-tester.git
+cd react-color-tester/color-tester/
 ```
