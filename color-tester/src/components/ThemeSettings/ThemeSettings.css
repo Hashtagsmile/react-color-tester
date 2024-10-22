@@ -1,0 +1,315 @@
+.settings-container {
+    position: fixed;
+    top: 0;
+    right: -350px; /* Start off-screen */
+    width: 350px;
+    height: 100vh;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    transition: right 0.5s ease, opacity 0.5s ease;
+    opacity: 0; /* Initially hidden */
+    overflow-y: auto;
+    border-left: 1px solid var(--sidebar-border-light) !important; /* Light by default */
+    background-color: var(--sidebar-bg-light) !important; /* Light by default */
+    color: var(--sidebar-text-light)  !important; /* Light by default */
+}
+
+/* When the sidebar is open */
+.settings-container.open {
+    right: 0;
+    opacity: 1;
+}
+
+/* Dark mode settings for sidebar */
+:root[data-theme="dark"] .settings-container {
+    background-color: var(--sidebar-bg-dark)  !important;
+    color: var(--sidebar-text-dark)  !important;
+    border-left: 1px solid var(--sidebar-border-dark)  !important;
+}
+
+/* When closing the sidebar */
+.settings-container.closing {
+    right: -350px;
+    opacity: 0;
+}
+
+/* Sidebar Toggle Button */
+.open-sidebar-btn {
+    width: 60px;
+    height: 60px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: black; /* Light by default */
+    color: white; /* Light by default */
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 100000;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Dark mode toggle button styling */
+:root[data-theme="dark"] .open-sidebar-btn {
+    background-color: white !important;
+    color: black !important;
+}
+
+/* Hover state for sidebar toggle button */
+.open-sidebar-btn:hover {
+    background-color: black !important; /* Black on hover for light mode */
+    transform: scale(1.05); /* Adds a hover scale effect */
+    color: white !important; /* Text color should remain white in light mode */
+}
+
+/* Dark mode hover state */
+:root[data-theme="dark"] .open-sidebar-btn:hover {
+    background-color: black !important; /* Hover state for dark mode */
+    color: white !important; /* Text color changes to white in dark mode */
+}
+
+/* Sidebar content */
+.settings-content {
+    height: 100%;
+    text-align: start;
+}
+
+/* Tab Section */
+.tabs {
+    display: flex;
+    flex-direction: row;
+    margin-top: 20px;
+}
+
+.tab-button {
+    flex-grow: 1;
+    text-align: center;
+    padding: 10px;
+    border: none;
+    background: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.top-content h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: black; /* Use primary color for headings */
+    margin-bottom: 1rem;
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+/* Dark Mode for h2 */
+:root[data-theme="dark"] .top-content h2 {
+    color: var(--sidebar-text-dark); /* Adjust heading color for dark mode */
+}
+
+/* Active tab styling */
+.tab-button.active {
+    background-color: var(--sidebar-bg-light);
+    color: var(--color-accent);
+}
+
+/* Underline effect for tabs */
+.tab-button::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: grey;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* Active underline */
+.tab-button.active::after {
+    background-color: var(--color-accent);
+    height: 3px; /* Make active underline thicker */
+}
+
+/* Tab Content */
+.tab-content {
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    row-gap: 20px;
+    width: 100%;
+}
+
+/* Footer */
+.settings-footer {
+    padding-top: 20px;
+    border-top: 1px solid grey;
+}
+
+/* Export Button */
+.export-button {
+    padding: 10px 20px;
+    background-color: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.export-button:hover {
+    background-color: var(--color-accent);
+    transform: scale(1.05); /* Adds a slight hover effect */
+}
+
+/* Randomize Button */
+.button-random {
+    padding: 0px !important;
+    margin: 0px !important;
+    width: 60px;
+    height: 50px;
+    color: black;
+    background-color: white;
+    border: 1px solid black;
+}
+
+.button-random svg {
+    font-size: 1.5rem;
+}
+
+/* Dark Mode for Randomize Button */
+:root[data-theme="dark"] .button-random {
+    background-color: var(--sidebar-bg-dark); /* Dark mode background */
+    color: var(--sidebar-text-dark); /* Dark mode text color */
+    border: 1px solid var(--sidebar-border-dark); /* Dark mode border color */
+}
+
+/* Hover state for Randomize Button in Dark Mode */
+:root[data-theme="dark"] .button-random:hover {
+    background-color: var(--color-accent); /* Accent color on hover for dark mode */
+    color: var(--sidebar-bg-dark); /* Icon color in dark mode */
+}
+
+/* Active/Pressed state in Dark Mode */
+:root[data-theme="dark"] .button-random:active {
+    transform: scale(0.95); /* Pressed state effect for dark mode */
+}
+
+/* Font Option Styling */
+.font-option {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.font-name {
+    width: 100%;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+/* Sticky Action Container */
+.sticky-action-container {
+    background-color: var(--sidebar-bg-light) !important;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: -webkit-sticky; /* Required for Safari */
+    position: sticky;
+    top: 0; /* Sticks to the top of its container or viewport */
+    z-index: 10;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--sidebar-border-light) !important;
+}
+
+/* Sticky container in dark mode */
+:root[data-theme="dark"] .sticky-action-container {
+    background-color: var(--sidebar-bg-dark) !important;
+    border-bottom: 1px solid var(--sidebar-border-dark) !important;
+}
+
+/* Action Buttons */
+.action-button {
+    width: 80px;
+    background-color: black;
+    color: white;
+}
+
+/* Theme Buttons */
+.theme-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.theme-buttons button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.theme-buttons button:hover {
+    background-color: var(--color-accent);
+}
+
+/* Disabled Button */
+.theme-buttons button.disabled {
+    border: 1px solid rgb(122, 122, 122);
+    background-color: #ccc;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Redo Button */
+.redo-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    background-color: white;
+    color: black;
+    width: 20%;
+}
+
+.redo-button-disabled {
+    border: 1px solid rgb(122, 122, 122);
+    background-color: #ccc;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.redo-button .action-button {
+    font-size: 20px;
+}
+
+.redo-button:hover {
+    border: 1px solid black;
+    background-color: white;
+    color: black;
+}
+.dropdown-section {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem; /* Adjust spacing between label and dropdown */
+  }
+  
+  .dropdown-label {
+    font-size: 14px; /* Adjust the size of the label */
+    font-weight: 600; /* Make the label bold */
+    margin-bottom: 0.5rem; /* Add space between label and dropdown */
+    color: var(--color-text); /* Adjust color to match your theme */
+  }
+
+  /* Dark Mode for h2 */
+:root[data-theme="dark"] .dropdown-label {
+    color: var(--sidebar-text-dark); /* Adjust heading color for dark mode */
+}

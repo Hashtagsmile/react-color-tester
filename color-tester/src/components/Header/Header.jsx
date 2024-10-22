@@ -1,26 +1,49 @@
-import { Link } from "react-router-dom";
-import './Header.css';
+import { NavLink } from "react-router-dom";
+import "./Header.css";
+import logo from "../../assets/color_logo.svg";
 
 const Header = () => {
   return (
     <header className="header">
-    <div className="header-container">
-    <Link className="nav-link" to ="/">
-      <h1 className="header-title">Color Visualizer</h1>
-      </Link>
-      <nav>
-        <ul className="nav">
-          <li className="nav-item">
-            <Link className="nav-link" to="/">Landing Page</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/about">Sign up / Sign in Page</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/dashboard">Dashboard</Link>
-          </li>
-        </ul>
-      </nav>
+      <div className="header-container">
+        <a className="logo-container" href="/">
+          <img src={logo} className="logotype" />
+          <h1 className="header-title">Theme Lab</h1>
+        </a>
+        <nav>
+          <ul className="nav">
+            <li className="nav-item">
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  isActive ? "nav-link active-link" : "nav-link"
+                }
+              >
+                Landing Page
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink
+                to="/about"
+                className={({ isActive }) =>
+                  isActive ? "nav-link active-link" : "nav-link"
+                }
+              >
+                Sign up / Sign in Page
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink
+                to="/dashboard"
+                className={({ isActive }) =>
+                  isActive ? "nav-link active-link" : "nav-link"
+                }
+              >
+                Dashboard
+              </NavLink>
+            </li>
+          </ul>
+        </nav>
       </div>
     </header>
   );

@@ -8,6 +8,7 @@
     height: 70px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 9999;
+    transition: background-color 0.3s ease;
 }
 
 /* Header content container with max-width */
@@ -20,35 +21,77 @@
     align-items: center;
 }
 
-.header-title {
-    font-family: var(--font-family);
-    font-size: 24px;
-    margin: 0;
-}
-
-
 .nav {
     display: flex;
     flex-direction: row;
     gap: 20px;
-    /* Adds space between navigation items */
 }
 
 .nav-item {
     list-style: none;
-    /* Removes bullet points */
 }
 
+/* Default nav link styles */
 .nav-link {
     color: var(--secondary-color);
     text-decoration: none;
     font-size: 18px;
     padding: 10px 15px;
-    transition: color 0.3s ease;
+    position: relative;
+    transition: all 0.3s ease;
+    text-decoration: none;
 }
 
-.nav-link:hover {
-    text-decoration: underline;
-    color: var(--primary-color);
-    /* Optionally change the hover color */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    background-color: var(--color-secondary);
+    left: 0;
+    bottom: 0;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.active-link {
+    color: var(--color-accent);
+}
+
+.active-link::after {
+    background-color: var(--color-accent);
+    width: 100%;
+}
+
+.logotype{
+    height: 50px;
+    width: 50px;
+}
+
+.logo-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.header-title{
+    color: var(--color-text);
+    font-size: 18px;
+}
+
+/* Mobile-friendly: Adjust gap and font-size */
+@media (max-width: 768px) {
+    .nav {
+        gap: 10px;
+    }
+
+    .nav-link {
+        font-size: 16px;
+    }
 }
