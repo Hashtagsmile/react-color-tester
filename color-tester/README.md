@@ -1,14 +1,28 @@
-# React + Vite
+# React + Vite Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a minimal setup of a React application using Vite as the build tool. Vite provides fast development with Hot Module Replacement (HMR) and optimal build speed. This setup also includes ESLint rules for code quality and consistency.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React + Vite**: Enjoy fast development with instant Hot Module Replacement.
+- **ESLint**: Enforce code quality and consistency with linting rules.
+- **Fast Refresh**: Use Babel or SWC to enable Fast Refresh for React components.
+- **Dark/Light Theme Switching**: Customizable themes with support for dark and light modes.
+- **Dynamic Color Picker**: Integrated color picker with locking and copying features.
+- **Font Customization**: Choose from predefined fonts or search for custom fonts.
 
+## Prerequisites
 
+To run this application, ensure you have the following installed:
 
-### To run the application
+- [Node.js](https://nodejs.org/en/download/) (LTS version recommended)
+- npm or yarn package manager
 
-npm run dev
+## Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
+```
