@@ -1,0 +1,111 @@
+/* Main container styling */
+.action-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  /* Top container for undo, redo, and reset buttons */
+  .action-top-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 0.2rem;
+  }
+  
+  .undo-redo-container {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+  
+  .reset-container {
+    margin-left: auto;
+  }
+  
+  /* Mode container for dark/light mode toggle */
+  .mode-contaner {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  /* Button styling */
+  .action-controls button {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    height: 50px;
+    width: 50px;
+    border-radius: 200px;
+    padding: 0.7rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .action-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .action-controls button:hover:not(:disabled) {
+    transform: scale(1.05);
+    background-color: grey; /* Fixed typo */
+  }
+  
+  .action-icon {
+    font-size: 1.5rem; /* Ensure the icon size is consistent */
+  }
+  
+  /* Redo button and its disabled state */
+  .undo-redo-container .redo-button,
+  .undo-redo-container .redo-button-disabled {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+  }
+  
+  .undo-redo-container .redo-button-disabled {
+    background-color: white;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  /* Mode display */
+  .mode {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    font-size: 1rem;
+    color: var(--text-color);
+  }
+
+  .edit-container{
+    display: flex;
+    width: 100%;
+    gap: 20px;
+  }
+  .highlight{
+    font-weight: bold !important;
+  }
+  
+  .toggle-mode {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: none;
+    padding: 0.8rem;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .toggle-mode:hover {
+    background-color: var(--secondary-color);
+  }
+  

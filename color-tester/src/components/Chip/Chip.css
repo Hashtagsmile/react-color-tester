@@ -1,0 +1,19 @@
+.chip{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100px;
+    padding: 0.2rem 0.8rem;
+    gap: 0.5rem;
+}
+
+.chip.positive {
+    background-color: #a7ca7f;
+    color: #4e9200;
+}
+
+.chip.negative {
+    background-color: #ca7f7f;
+    color: #af0404;
+}

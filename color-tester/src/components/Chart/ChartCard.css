@@ -1,0 +1,49 @@
+.chart-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-secondary);
+    padding: 2rem;
+    border-radius: 6px;
+    /**box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);**//
+  }
+  
+  .title-container{
+    display: flex;
+    justify-content: start;
+    color: var(--color-text);
+    font-size: 18px;
+    margin-bottom: 1rem;
+  }
+
+  .chart-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Full height of the chart card */
+    font-size: 1.2rem;
+    color: var(--color-text);
+  }
+  
+  /* You can add a rotating animation for the spinner */
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Optional spinner style */
+  .loading-spinner::before {
+    content: "";
+    width: 30px;
+    height: 30px;
+    border: 4px solid var(--color-primary);
+    border-top: 4px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }

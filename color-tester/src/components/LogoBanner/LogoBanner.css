@@ -1,0 +1,51 @@
+.banner-container {
+    max-width: 1280px;
+    overflow: hidden;
+    position: relative;
+}
+
+.logo-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: scrollBanner 25s linear infinite; /* Continuous scrolling */
+    width: max-content; /* Allow the container to expand with duplicated logos */
+}
+
+.banner-logo {
+    width: 200px;
+    height: auto;
+  }
+  
+  .banner-logo path {
+    fill: var(--color-text); /* Dynamic color using CSS variable */
+  }
+
+  .banner-logo {
+    fill: var(--color-text);
+  }
+
+/* Keyframes for continuous scrolling */
+@keyframes scrollBanner {
+    0% {
+        transform: translateX(0); /* Start at the normal position */
+    }
+
+    100% {
+        transform: translateX(-50%); /* Move left by half of the total content width */
+    }
+}
+
+/* Fading effect on the edges */
+.banner-logo {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.banner-log:hover .logo {
+    opacity: 0.8;
+}
+
+.banner-container:hover .banner-logo {
+    animation-play-state: paused; /* Optionally pause the animation on hover */
+}

@@ -1,0 +1,248 @@
+/* Main section */
+.main-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 2rem;
+  padding-top: 10%;
+  box-sizing: border-box;
+}
+
+/* Hero text section */
+.hero-text {
+  margin-top: 0px;
+  max-width: 600px;
+  text-align: left;
+}
+
+.hero-text h1 {
+  font-family: var(--header-font-family); /* Use dynamic header font */
+  font-size: 3rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.hero-text p {
+  font-family: var(--body-font-family); /* Use dynamic body font */
+  margin: 1.5rem 0;
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+
+.hero-text .highlight-one {
+  font-weight: 700;
+  background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-text .highlight-two {
+  font-weight: 700;
+  background: linear-gradient(to right, var(--color-accent), var(--color-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hero buttons section */
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  font-family: var(--body-font-family); /* Ensure button text uses body font */
+  padding: 0.8rem 1.6rem;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 100px;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-5px); /* Move the button upwards */
+  background-color: var(--accent-color); /* Optional: Change color on hover */
+  box-shadow: 0 0 15px var(--color-accent), 0 0 25px var(--color-accent); /* Accent color glow */
+  transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.how-btn {
+  background-color: var(--color-secondary);
+  border: 1px solid var(--color-secondary);
+  color: var(--color-text);
+}
+
+.start-btn {
+  background-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  color: #333;
+}
+
+.scroll-down {
+  margin-top: 1rem;
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 14px;
+  gap: 10px;
+}
+
+.hero-visual {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Features section */
+.features-section {
+  margin-top: 9rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-bottom: 10rem;
+}
+
+.intro {
+  font-family: var(--header-font-family); /* Use dynamic header font */
+  color: var(--color-text);
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.intro.title {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 500;
+  font-size: 12px;
+  padding-bottom: 0.8rem;
+}
+
+.features-container {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: row;
+  align-content: space-between;
+  width: 100%;
+  gap: 2rem;
+}
+
+/* Tutorial section */
+.tutorial-section {
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-bottom: 3rem;
+}
+
+.top-content {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.top-content.left {
+  display: grid;
+  grid-template-columns: 70% 30%;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "box1 box2"
+    "box4 box3";
+  gap: 10px;
+  width: 100%;
+  padding-right: 5rem;
+  height: 100%;
+}
+
+.box1 {
+  grid-area: box1;
+  height: 100%;
+  background-color: var(--color-accent);
+  border-radius: 10px;
+}
+
+.box2 {
+  grid-area: box2;
+  height: 100%;
+  background-color: var(--color-secondary);
+  border-radius: 10px;
+}
+
+.box3 {
+  grid-area: box4;
+  height: 100%;
+  background-color: var(--color-secondary);
+  border-radius: 10px;
+}
+
+.box4 {
+  grid-area: box3;
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: 10px;
+}
+
+.top-content.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.top-content.right h2 {
+  font-family: var(--header-font-family);
+  color: var(--color-text);
+  font-size: 32px;
+}
+
+.top-content.right h5 {
+  font-family: var(--body-font-family);
+  color: var(--color-text);
+  text-align: left;
+  font-weight: 400;
+  font-size: 18px;
+}
+
+/* Checkmark container */
+.checkmark-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.checkmark-item {
+  display: flex;
+  gap: 10px;
+}
+
+/* FAQ section */
+.faq-section {
+  margin-top: 10rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-bottom: 10rem;
+}
+
+.faq-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  padding: 30px;
+  width: 100%;
+}
