@@ -1,6 +1,6 @@
 import "./DashboardPage.css";
 import React, { useEffect, useState } from "react";
-import { Widget } from "../components/Widget/widget";
+import { Widget } from "../components/Widget/Widget"
 import { ChartCard } from "../components/Chart/ChartCard";
 import {
   lineChartData,
