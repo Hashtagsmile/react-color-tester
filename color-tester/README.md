@@ -53,8 +53,8 @@ The application will be served locally, typically at http://localhost:3000 (depe
 ### Roadmap
 - [x] Demo website on vercel
 - [x] Browse through predefined themes and customize them to your own liking in real-time.
-- [] Fix the locking mechanism for individual colors
-- [] Extend the export to support more formats like wordpress and elementor
-- [] Be able to adjust the size of font header and font body and reflect this in the exporting of the theme
-- [] Implement general settings tab where the user can change paramters such as card sizes, border-radius, number of dashboard cards etc... to further enhance the customization.
-- [] Fix the copy to clipboard
+- [ ] Fix the locking mechanism for individual colors
+- [ ] Extend the export to support more formats like wordpress and elementor
+- [ ] Be able to adjust the size of font header and font body and reflect this in the exporting of the theme
+- [ ] Implement general settings tab where the user can change paramters such as card sizes, border-radius, number of dashboard cards etc... to further enhance the customization.
+- [ ] Fix the copy to clipboard
