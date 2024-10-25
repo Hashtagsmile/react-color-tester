@@ -7,6 +7,7 @@ Theme Lab is a lightweight and customizable React application built with Vite fo
 - **React + Vite**: Enjoy fast development with instant Hot Module Replacement.
 - **ESLint**: Enforce code quality and consistency with linting rules.
 - **Fast Refresh**: Use Babel or SWC to enable Fast Refresh for React components.
+- **Customizable Global Theme Management**: The project utilizes a ThemeProvider with React’s createContext and useContext to manage and dynamically apply theme settings across the entire application.
 - **Dark/Light Theme Switching**: Customizable themes with support for dark and light modes. You can also randomize themes.
 - **Dynamic Color Picker**: Integrated color picker with copying features. Colors such as primary, secondary, accent, text and background colors can be changed in real-time.
 - **Font Customization**: Choose from predefined fonts or randomize the fonts. It supports fonts for text body and text header.
@@ -49,6 +50,30 @@ npm run dev
 ```
 The application will be served locally, typically at http://localhost:3000 (depending on your Vite configuration).
 
+
+### Theme Provider
+The project utilizes a ThemeProvider with React’s createContext and useContext to manage and dynamically apply theme settings across the entire application.
+This approach centralizes theme data and avoids the need for "prop drilling" (repeatedly passing props down through component hierarchies).
+
+<br>
+The ThemeProvider wraps the main application component and exposes the theme state and functions to any child components via useContext.
+The code below illustrates how it can be used.
+
+```
+import { useContext } from "react";
+import { ThemeContext } from "./path/to/ThemeProvider";
+
+const MyComponent = () => {
+  const { primaryColor, toggleDarkMode, randomizeColors } = useContext(ThemeContext);
+
+  return (
+    <div style={{ backgroundColor: primaryColor }}>
+      <button onClick={toggleDarkMode}>Toggle Dark Mode</button>
+      <button onClick={randomizeColors}>Randomize Colors</button>
+    </div>
+  );
+};
+```
 
 ### Roadmap
 - [x] Demo website on vercel
