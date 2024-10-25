@@ -1,10 +1,10 @@
 /* Default Dropdown Styling (for light mode) */
 .dropdown {
-    width: 180px;
+    width: 100%;
     padding: 10px 15px;
     font-size: 16px;
     font-family: inherit; /* Ensure the select inherits the page's font */
-    border: 2px solid #000000;
+    border: 1px solid rgb(122, 122, 122);;
     border-radius: 6px;
     background-color: white; /* Light background by default */
     color: black; /* Text color for light mode */

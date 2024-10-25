@@ -17,6 +17,10 @@ const DropdownButton = ({ options, onSelect, buttonTitle, selectedOption }) => {
             {option}
           </option>
         ))}
+        {/* Add an option for Custom Theme if it's selected since Custom THeme is not in the options array */}
+        {selectedOption === "Custom theme" && (
+                    <option value="Custom theme">Custom theme</option>
+                )}
       </select>
     </div>
   );

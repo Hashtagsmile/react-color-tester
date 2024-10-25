@@ -36,9 +36,9 @@
 
 /* Dark mode custom sidebar variables */
 :root[data-theme="dark"] {
-  --sidebar-bg-dark: #121212;
+  --sidebar-bg-dark: #111214;
   --sidebar-text-dark: #cfcfcf;
-  --sidebar-border-dark: #333333;
+  --sidebar-border-dark: #26292e;
 }
 
 body {

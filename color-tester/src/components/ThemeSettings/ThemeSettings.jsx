@@ -9,6 +9,7 @@ import { ColorPicker } from "./ColorPicker/ColorPicker";
 import { FaDice } from "react-icons/fa";
 import { ExportModal } from "./ExportModal/ExportModal";
 import { ActionControls } from "./ActionControls/ActionControls";
+import { default as ThirdPartyColorPicker, themes } from 'react-pick-color';
 
 export const ThemeSettings = () => {
   const {
@@ -27,6 +28,7 @@ export const ThemeSettings = () => {
     randomizeFont,
   } = useContext(ThemeContext); // Consuming the ThemeContext
 
+  console.log(currentTheme.isCustom)
   // Sidebar and tab control states
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [isClosing, setIsClosing] = useState(false);
@@ -38,16 +40,23 @@ export const ThemeSettings = () => {
       setTimeout(() => {
         setSettingsOpen(false);
         setIsClosing(false);
-      }, 500);
+      }, 100);
     } else {
       setSettingsOpen(true);
     }
   };
 
+  const isCustomTheme = (currentTheme) => {
+    if (currentTheme.isCustom) {
+        return "Custom theme";
+    }
+    return currentTheme.name;
+};
+
   return (
     <section>
-      <button className="open-sidebar-btn" onClick={toggleSettings}>
-        {settingsOpen ? <GoSidebarCollapse /> : <GoSidebarExpand />}
+      <button className={`open-sidebar-btn ${settingsOpen ? 'active' : ''}`} onClick={toggleSettings}>
+      <GoSidebarCollapse/>
       </button>
 
       <div
@@ -60,19 +69,17 @@ export const ThemeSettings = () => {
             <ActionControls />
           </div>
           <div className="top-content">
-            <h2>Theme Settings</h2>
+            Theme Settings
           </div>
           <div className="dropdown-section">
-            <p className="dropdown-label">Predefined themes</p>
+            <p className="dropdown-label">Select a predefined theme or adjust the colors below to make your own custom theme</p>
             <DropdownButton
               options={predefinedThemes.map((theme) => theme.name)}
               onSelect={(theme) => applyTheme({ name: theme })}
               buttonTitle="Select Theme"
-              selectedOption={currentTheme ? currentTheme.name : "Custom Theme"} // Show "Custom Theme" or "Select Theme" when no predefined theme is selected
+              selectedOption={isCustomTheme(currentTheme)}
             />
-            {currentTheme.name}
           </div>
-
           {/* Tab Section */}
           <div className="tabs">
             <button
@@ -95,14 +102,21 @@ export const ThemeSettings = () => {
             >
               General
             </button>
+            <div className="underline" style={{ left: activeTab === "Colors" ? "0%" : activeTab === "Fonts" ? "33.33%" : "66.66%" }}></div>
           </div>
 
           {/* Colors Tab */}
           {activeTab === "Colors" && (
             <div className="tab-content">
               {/* Add color-related settings here, like color pickers */}
-              <div>
-                Use the color pickers below to change the colors of the theme.
+              <div className="random-container">
+                <div className="random">Randomize Colors</div>
+                <button
+                  className="button-random"
+                  onClick={() => randomizeColors()}
+                >
+                  <FaDice />
+                </button>
               </div>
               <ColorPicker
                 colorType="primaryColor"
@@ -129,15 +143,6 @@ export const ThemeSettings = () => {
                 label="Text Color"
                 color={textColor}
               />
-              <div className="color-picker">
-                <p className="color-name">Randomize Colors</p>
-                <button
-                  className="button-random"
-                  onClick={() => randomizeColors()}
-                >
-                  <FaDice />
-                </button>
-              </div>
             </div>
           )}
 
@@ -184,7 +189,7 @@ export const ThemeSettings = () => {
           )}
 
           {/* Settings footer */}
-          <div className="settings-footer">
+          <div className="sticky-footer">
             <ExportModal />
           </div>
         </div>

@@ -37,31 +37,38 @@ export const ColorPicker = ({ colorType, label, color }) => {
 
   return (
     <div className="color-picker">
-      <div className="color-name">
-        <p>{label}</p>
-      </div>
+      <label className="color-label">{label}</label>
       <div className="color-actions">
-        <input
-          type="color"
-          value={color}
-          onClick={() => {
-            setIsColorPickerOpen(true);
-          }}
-          onChange={(e) => handleColorChange(e)}
-          onMouseUp={(e) => handleMouseUp(e)}
-        />
-        <button
-          className="action-button"
-          onClick={() => toggleLockColor(colorType)}
-        >
-          {lockedColors[colorType] ? <CiUnlock /> : <CiLock />}
-        </button>
-        <button
-          className="action-button"
-          onClick={() => handleCopyColor(color)}
-        >
-          <LuCopy />
-        </button>
+        <div className="colpic-container">
+          <div className="colpic-wrapper">
+            <input
+              type="color"
+              value={color}
+              onClick={() => {
+                setIsColorPickerOpen(true);
+              }}
+              onChange={(e) => handleColorChange(e)}
+              onMouseUp={(e) => handleMouseUp(e)}
+              className="color-picker"
+            />
+          </div>
+          <div className="hex-color"> {color} </div>
+        </div>
+
+        <div className="copy-lock-container">
+          <button
+            className="action-button"
+            onClick={() => toggleLockColor(colorType)}
+          >
+            {lockedColors[colorType] ? <CiUnlock /> : <CiLock />}
+          </button>
+          <button
+            className="action-button"
+            onClick={() => handleCopyColor(color)}
+          >
+            <LuCopy />
+          </button>
+        </div>
       </div>
     </div>
   );

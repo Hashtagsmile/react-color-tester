@@ -1,22 +1,33 @@
-/* Color picker section */
 .color-picker {
     display: flex;
-    justify-content: space-between;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
 }
 
-.color-actions{
+.color-label{
+    font-size: 14px;
+    font-weight: lighter;
+}
+
+.color-actions {
     display: flex;
-    gap: 5px;
-    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
     align-items: center;
 }
 
-.color-name {
-    width: 100%;
-    font-size: 18px;
-    font-weight: 700;
+.copy-lock-container{
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.hex-color{
+    color: rgb(88, 88, 88);
+}
+
+:root[data-theme="dark"] .hex-color{
+    color: rgb(213, 213, 213) ;
 }
 
 .action-button {
@@ -24,68 +35,70 @@
     align-items: center;
     justify-content: center;
     background-color: white;
-    color: black;
-    border: 1px solid black;
+    color: rgb(129, 129, 129);
+    border: 1px solid rgb(129, 129, 129);
     width: 3rem;
-    height: 3rem; /* Make the button square */
-    border-radius: 6px; /* Round button */
+    height: 3rem;
+    border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
-    padding: 0px !important;
 }
 
 .action-button svg {
-font-size: 1rem;
+    font-size: 1rem;
 }
+
 .action-button:hover {
-    background-color: black; /* Change background color on hover */
-    color: white; /* Change icon color on hover */
-    transform: scale(1.1); /* Slightly enlarge the button on hover */
+    background-color: rgb(83, 83, 83);
+    color: white;
+    transform: scale(1.1);
 }
 
 .action-button:active {
-    transform: scale(0.95); /* Pressed state effect */
+    transform: scale(0.95);
 }
 
-/* Dark mode styles */
 :root[data-theme="dark"] .action-button {
-    background-color: var(--sidebar-bg-dark); /* Dark mode background */
-    color: var(--sidebar-text-dark); /* Dark mode text color */
-    border: 1px solid var(--sidebar-border-dark); /* Dark mode border color */
+    background-color: var(--sidebar-bg-dark);
+    color: var(--sidebar-text-dark);
+    border: 1px solid var(--sidebar-border-dark);
 }
 
 :root[data-theme="dark"] .action-button:hover {
-    background-color: var(--color-accent); /* Change background color on hover for dark mode */
-    color: var(--sidebar-bg-dark); /* Change icon color on hover for dark mode */
+    background-color: var(--color-accent);
+    color: var(--sidebar-bg-dark);
 }
 
+.colpic-container {
+    height: 3rem;
+    width: 8rem;
+    display: flex;
+    flex-direction: row;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    align-items: center;
+    border: 1px solid rgb(170, 170, 170);
+    border-radius: 6px;
+    gap: 0.8rem;
+    background-color: white !important;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
+.colpic-wrapper {
+  overflow: hidden;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
 
 input[type="color"] {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 5px; /* Adds rounded corners */
-    border: 1px solid black;
-    cursor: pointer;
-    display: block;
-    margin: 0 auto;
-    transition: all 0.3s ease;
+  width: 200%;
+  height: 200%;
+  margin: -50%;
+  cursor: pointer;
 }
 
-input[type="color"]:hover {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow on hover */
-}
-
-input[type="color"]:focus {
-    outline: none;
-    border: 2px solid var(--primary-color); /* Accent border on focus */
-}
-
-/* Dark mode for color input */
-:root[data-theme="dark"] input[type="color"] {
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); /* Subtle shadow for dark mode */
-}
-
-:root[data-theme="dark"] input[type="color"]:hover {
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Stronger hover shadow in dark mode */
+:root[data-theme="dark"] .colpic-container{
+    background-color: var(--sidebar-bg-dark) !important;
+    border: 1px solid var(--sidebar-border-dark);
 }
