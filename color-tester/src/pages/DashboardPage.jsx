@@ -1,13 +1,13 @@
 import "./DashboardPage.css";
 import React, { useEffect, useState } from "react";
 import { Widget } from "../components/DbWidget/Widget.jsx"
-import { ChartCard } from "../components/Chart/ChartCard";
+import { ChartCard } from "../components/Chart/ChartCard.jsx";
 import {
   lineChartData,
   pieChartData,
   areaChartData,
   barChartData,
-} from "../data/chartData";
+} from "../data/chartData.js";
 const ContactPage = () => {
   const [loading, setLoading] = useState(true);
   const [lineData, setLineData] = useState([]);
