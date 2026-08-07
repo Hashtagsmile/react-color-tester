@@ -1,39 +1,91 @@
-.widget-card {
-    background-color: var(--color-secondary);
-    color: var(--color-text);
-    width: 100%;
-    padding: 0.5rem 2.5rem;
-    border-radius: 6px;
+/* KPI widget — scoped under .page-dashboard so it can't restyle chrome.
+   All depth derived from the theme via color-mix (no flat theme fills). */
+
+.page-dashboard .widget-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  background-color: color-mix(in srgb, var(--color-text) 4%, var(--color-background));
+  border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-text) 6%, transparent);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.top-content {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+.page-dashboard .widget-card:hover {
+  border-color: color-mix(in srgb, var(--color-text) 18%, transparent);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-text) 9%, transparent);
+  transform: translateY(-1px);
 }
 
-.title{
-    font-size: 18px;
-    font-weight: 500;
+.page-dashboard .widget-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.percentage{
-    font-size: 14px;
+.page-dashboard .widget-label {
+  font-family: var(--body-font-family);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 58%, var(--color-background));
 }
 
-.percentage.positive{
-    color: green;
+.page-dashboard .widget-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--body-font-family);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 8px 3px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
-.percentage.negative{
-    color: red;
+.page-dashboard .widget-delta svg {
+  width: 0.85em;
+  height: 0.85em;
 }
 
-.bottom-content {
-    display: flex;
-    flex-direction: row;
-    justify-content: start;
-    font-size: 28px;
-    font-weight: 700;
+.page-dashboard .widget-delta.is-up {
+  color: #15803d;
+  background-color: color-mix(in srgb, #22c55e 16%, var(--color-background));
+}
+
+.page-dashboard .widget-delta.is-down {
+  color: #b91c1c;
+  background-color: color-mix(in srgb, #ef4444 16%, var(--color-background));
+}
+
+.page-dashboard .widget-value {
+  font-family: var(--header-font-family);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.page-dashboard .widget-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.page-dashboard .widget-caption {
+  font-family: var(--body-font-family);
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--color-text) 50%, var(--color-background));
+}
+
+.page-dashboard .widget-spark {
+  width: 82px;
+  height: 34px;
+  flex-shrink: 0;
 }

@@ -1,29 +1,33 @@
-import "./DropdownButton.css"; // Add your styles here
+import { FiChevronDown } from "react-icons/fi";
+import "./DropdownButton.css";
 
-const DropdownButton = ({ options, onSelect, buttonTitle, selectedOption }) => {
-
-    const handleSelect = (e) => {
-        const selectedValue = e.target.value;
-        onSelect(selectedValue); // Pass the selected option to the parent component
-      };
+const DropdownButton = ({ options, onSelect, buttonTitle, selectedOption, customLabel }) => {
+  const showCustom = customLabel && selectedOption === customLabel;
 
   return (
     <div className="dropdown-button">
-      <select value={selectedOption} onChange={handleSelect} className="dropdown">
-        <option value="" disabled>{buttonTitle}</option>
-        {options.map((option, index) => (
-          <option key={index} value={option}>
+      <select
+        className="dropdown"
+        value={selectedOption ?? ""}
+        onChange={(e) => onSelect(e.target.value)}
+      >
+        <option value="" disabled>
+          {buttonTitle}
+        </option>
+        {showCustom && (
+          <option value={customLabel} disabled>
+            {customLabel}
+          </option>
+        )}
+        {options.map((option) => (
+          <option key={option} value={option}>
             {option}
           </option>
         ))}
-        {/* Add an option for Custom Theme if it's selected since Custom THeme is not in the options array */}
-        {selectedOption === "Custom theme" && (
-                    <option value="Custom theme">Custom theme</option>
-                )}
       </select>
+      <FiChevronDown className="dropdown-caret" aria-hidden="true" />
     </div>
   );
 };
 
 export default DropdownButton;
-

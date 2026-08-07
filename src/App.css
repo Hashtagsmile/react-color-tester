@@ -1,6 +1,63 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  text-align: center;
-  z-index: 10;
+  width: 100%;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(91, 108, 255, 0.12), transparent 60%),
+    var(--app-bg);
+}
+
+.workspace {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* Preview grows to fill; sidebar is a fixed control column. */
+.workspace > .preview-pane {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace > .settings-root {
+  flex: 0 0 auto;
+}
+
+/* Jump link to the editor — only meaningful once the sidebar stacks below. */
+.editor-jump {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .workspace {
+    flex-direction: column;
+  }
+
+  .editor-jump {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: var(--app-brand-strong);
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
 }

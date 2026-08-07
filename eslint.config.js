@@ -29,8 +29,8 @@ export default [
       ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
       'react/jsx-no-target-blank': 'off',
-      // This project does not use the PropTypes runtime checker; component
-      // contracts are documented at the call site instead.
+      // This is a plain-JS project and `prop-types` is deprecated as of React 19,
+      // so runtime prop validation is not the tool we reach for here.
       'react/prop-types': 'off',
       'react-refresh/only-export-components': [
         'warn',

@@ -1,19 +1,53 @@
-.feature-card{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    justify-content: center;
-    padding: 2rem;
-    border-radius: 6px;
+/* Feature card — scoped under .page-landing so nothing leaks to chrome.
+   Uses the page's derived surface tokens for theme-robust depth. */
+
+.page-landing .feature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+  min-width: 0;
+  padding: 24px;
+  border-radius: var(--nw-r-card);
+  background: var(--nw-surface);
+  border: 1px solid var(--nw-hairline);
+  box-shadow: var(--nw-shadow);
+  transition: transform 0.18s ease, border-color 0.18s ease;
 }
 
-.circle-icon{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50px;
-    width: 50px;
-    border-radius: 100%;
-    color: var(--color-accent);
+.page-landing .feature-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+
+.page-landing .circle-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 42px;
+  width: 42px;
+  margin-bottom: 18px;
+  border-radius: var(--nw-r-control);
+  color: var(--color-primary);
+  background: var(--nw-primary-tint);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
+.page-landing .feature-content h3 {
+  font-family: var(--header-font-family);
+  color: var(--color-text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+  text-align: left;
+}
+
+.page-landing .feature-content p {
+  font-family: var(--body-font-family);
+  color: var(--nw-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+  text-align: left;
 }
