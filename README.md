@@ -1,12 +1,22 @@
-# Theme Lab webb app with React + Vite Application
+# Theme Lab
 
-Theme Lab is a lightweight and customizable React application built with Vite for fast development and optimal build performance. With a clean, intuitive interface, this app provides a comprehensive set of tools for theme customization, including dynamic color pickers, font options, dark/light mode switching, and theme export functionality. ESLint is included to maintain code quality, and the setup leverages Vite’s Hot Module Replacement (HMR) for a smooth development experience.
+**Design a colour and font theme, watch it apply to real UI as you type, then export the CSS variables.**
+
+[![CI](https://github.com/Hashtagsmile/react-color-tester/actions/workflows/ci.yml/badge.svg)](https://github.com/Hashtagsmile/react-color-tester/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://react-color-tester.vercel.app/)
+
+**[▶ Try it live](https://react-color-tester.vercel.app/)**
+
+![Theme Lab — live theme editing with real-time preview](.github/assets/screenshot.png)
+
+Picking colours in isolation is misleading: a palette that looks balanced on a swatch grid falls apart on
+an actual page. Theme Lab previews every change against three realistic screens — a landing page, a
+sign-in page and a dashboard — so contrast and hierarchy problems show up while you are still choosing.
+When the theme works, export it as ready-to-paste CSS custom properties.
 
 ## Features
 
-- **React + Vite**: Enjoy fast development with instant Hot Module Replacement.
-- **ESLint**: Enforce code quality and consistency with linting rules.
-- **Fast Refresh**: Use Babel or SWC to enable Fast Refresh for React components.
 - **Customizable Global Theme Management**: The project utilizes a ThemeProvider with React’s createContext and useContext to manage and dynamically apply theme settings across the entire application.
 - **Dark/Light Theme Switching**: Customizable themes with support for dark and light modes. You can also randomize themes.
 - **Dynamic Color Picker**: Integrated color picker with copying features. Colors such as primary, secondary, accent, text and background colors can be changed in real-time.
@@ -17,8 +27,6 @@ Theme Lab is a lightweight and customizable React application built with Vite fo
 - **chroma-js** `chroma-js` for advanced color manipulation for the themes and the customization.
 - **Charts** Chart integration with a flexible charting library used on dummy data.
 
-
-Demo site hosted using Vercel: [demo](https://react-color-tester.vercel.app/)
 
 ## Prerequisites
 
@@ -39,8 +47,8 @@ The project also uses the following dependencies:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git](https://github.com/Hashtagsmile/react-color-tester.git
-cd color-tester/
+git clone https://github.com/Hashtagsmile/react-color-tester.git
+cd react-color-tester
 ```
 
 ### 2. Running the Application
@@ -48,7 +56,7 @@ To start the development server with Hot Module Replacement (HMR):
 ```bash
 npm run dev
 ```
-The application will be served locally, typically at http://localhost:3000 (depending on your Vite configuration).
+The application is served at http://localhost:5173 (Vite's default port).
 
 
 ### Theme Provider
@@ -82,4 +90,4 @@ const MyComponent = () => {
 - [ ] Extend the export to support more formats like wordpress and elementor
 - [ ] Be able to adjust the size of font header and font body and reflect this in the exporting of the theme
 - [ ] Implement general settings tab where the user can change paramters such as card sizes, border-radius, number of dashboard cards etc... to further enhance the customization.
-- [ ] Fix the copy to clipboard
+- [x] Fix the copy to clipboard

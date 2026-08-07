@@ -19,19 +19,16 @@ import "./ChartCard.css";
 
 export const ChartCard = ({ type, data, loading, title }) => {
   const [primaryColor, setPrimaryColor] = useState("#000");
-  const [secondaryColor, setSecondaryColor] = useState("#000");
   const [accentColor, setAccentColor] = useState("#000");
 
   const handleColorChange = () => {
     setPrimaryColor(getCSSVariableValue("--color-primary"));
-    setSecondaryColor(getCSSVariableValue("--color-secondary"));
     setAccentColor(getCSSVariableValue("--color-accent"));
   };
 
   useEffect(() => {
     // Fetch the colors from :root CSS variables
     setPrimaryColor(getCSSVariableValue("--color-primary"));
-    setSecondaryColor(getCSSVariableValue("--color-secondary"));
     setAccentColor(getCSSVariableValue("--color-accent"));
     // Listen for changes to the CSS variables
     window.addEventListener("colorChange", handleColorChange); // Custom event for color changes

@@ -49,7 +49,7 @@ export const ExportModal = () => {
 }
 `;
 
-  const copyToClipboard = () => {
+  const copyToClipboard = (colorScheme) => {
     navigator.clipboard.writeText(colorScheme);
     alert("Copied to clipboard");
   };

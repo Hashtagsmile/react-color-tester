@@ -14,12 +14,14 @@ import { isColorLight, getCSSVariableValue } from "../utilities/utilities";
 
 const AboutPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const icons = [<FaGoogle />, <FaApple />, <FaPhoneAlt />, <FaXTwitter />];
+  const icons = [
+    <FaGoogle key="google" />,
+    <FaApple key="apple" />,
+    <FaPhoneAlt key="phone" />,
+    <FaXTwitter key="x" />,
+  ];
 
-
-  const [textColor, setTextColor] = useState(
-    getCSSVariableValue("--color-text")
-  );
+  const [textColor] = useState(getCSSVariableValue("--color-text"));
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);

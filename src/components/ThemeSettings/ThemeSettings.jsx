@@ -1,6 +1,5 @@
 import "./ThemeSettings.css";
 import { useState, useContext } from "react";
-import { GoSidebarExpand } from "react-icons/go";
 import { GoSidebarCollapse } from "react-icons/go";
 import DropdownButton from "../DropdownButton/DropdownButton";
 import { predefinedThemes, predefinedFonts } from "../../data/predefinedThemes";
@@ -9,7 +8,6 @@ import { ColorPicker } from "./ColorPicker/ColorPicker";
 import { FaDice } from "react-icons/fa";
 import { ExportModal } from "./ExportModal/ExportModal";
 import { ActionControls } from "./ActionControls/ActionControls";
-import { default as ThirdPartyColorPicker, themes } from 'react-pick-color';
 
 export const ThemeSettings = () => {
   const {

@@ -1,5 +1,5 @@
 import "./DashboardPage.css";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Widget } from "../components/DbWidget/Widget.jsx"
 import { ChartCard } from "../components/Chart/ChartCard.jsx";
 import {

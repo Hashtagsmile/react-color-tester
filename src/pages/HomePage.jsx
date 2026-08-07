@@ -100,7 +100,7 @@ const HomePage = () => {
             </div>
             <div className="top-content right">
               <h2>Why is This Tool Essential?</h2>
-              <h5>Complete Control Over Your Website’s Design! With the powerful theme settings bar, you're in full command of every visual element on your site. Effortlessly customize your website's appearance in real-time as you adjust fonts, colors, and layouts. Instantly tweak your font styles, resize text, and switch up the colors of key CSS elements—like primary, secondary, and accent hues—all with a simple click. The live preview ensures that your changes are reflected instantly, letting you see your vision come to life without delay. Perfect your design with ease and creativity, without coding required! </h5>
+              <h5>Complete Control Over Your Website’s Design! With the powerful theme settings bar, you&apos;re in full command of every visual element on your site. Effortlessly customize your website&apos;s appearance in real-time as you adjust fonts, colors, and layouts. Instantly tweak your font styles, resize text, and switch up the colors of key CSS elements—like primary, secondary, and accent hues—all with a simple click. The live preview ensures that your changes are reflected instantly, letting you see your vision come to life without delay. Perfect your design with ease and creativity, without coding required! </h5>
               <div className="checkmark-container">
                 <div className="checkmark-item">
                   <IoCheckmarkSharp/> 100% Free to Use
