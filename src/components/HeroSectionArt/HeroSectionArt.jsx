@@ -13,7 +13,7 @@ export const HeroSectionArt = () => {
           <span className="hw-dot" />
           <span className="hw-dot" />
           <span className="hw-dot" />
-          <div className="hw-address">app.northwind.com</div>
+          <div className="hw-address">app.example.com</div>
         </div>
 
         <div className="hw-body">
@@ -33,7 +33,7 @@ export const HeroSectionArt = () => {
                 <div className="hw-title" />
                 <div className="hw-subtitle" />
               </div>
-              <div className="hw-pill">This week</div>
+              <div className="hw-pill">Label</div>
             </div>
 
             <div className="hw-stats">

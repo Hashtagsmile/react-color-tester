@@ -21,11 +21,11 @@ import {
 } from "../data/chartData.js";
 
 const NAV_ITEMS = [
-  { label: "Overview", icon: FiGrid, active: true },
-  { label: "Analytics", icon: FiBarChart2 },
-  { label: "Customers", icon: FiUsers },
-  { label: "Reports", icon: FiFileText },
-  { label: "Settings", icon: FiSettings },
+  { label: "Nav item · active", icon: FiGrid, active: true },
+  { label: "Nav item", icon: FiBarChart2 },
+  { label: "Nav item", icon: FiUsers },
+  { label: "Nav item", icon: FiFileText },
+  { label: "Nav item", icon: FiSettings },
 ];
 
 const STATUS_CLASS = {
@@ -55,7 +55,7 @@ const DashboardPage = () => {
       <aside className="dash-rail">
         <div className="dash-brand">
           <span className="dash-brand-mark">◈</span>
-          <span className="dash-brand-name">Northloop</span>
+          <span className="dash-brand-name">Your logo</span>
         </div>
         <nav className="dash-nav">
           {NAV_ITEMS.map(({ label, icon: Icon, active }) => (
@@ -71,7 +71,7 @@ const DashboardPage = () => {
           ))}
         </nav>
         <div className="dash-rail-card">
-          <p className="dash-rail-card-title">Pro trial</p>
+          <p className="dash-rail-card-title">Rail card title</p>
           <p className="dash-rail-card-body">18 days left on your plan.</p>
           <button className="dash-rail-card-btn" type="button">
             Upgrade
@@ -83,8 +83,8 @@ const DashboardPage = () => {
       <main className="dash-main">
         <header className="dash-topbar">
           <div className="dash-topbar-lead">
-            <h2 className="dash-title">Overview</h2>
-            <p className="dash-subtitle">Monday, 7 July · Last 30 days</p>
+            <h2 className="dash-title">Page title</h2>
+            <p className="dash-subtitle">Page subtitle · muted</p>
           </div>
           <div className="dash-topbar-actions">
             <div className="dash-search">
@@ -104,14 +104,14 @@ const DashboardPage = () => {
 
         <section className="dash-kpis" aria-label="Key metrics">
           <Widget
-            label="Revenue"
+            label="Metric label"
             value="€ 82 300"
             rising
             percentage="12.4"
             spark={sparkRevenue}
           />
           <Widget
-            label="Active users"
+            label="Metric label"
             value="14 208"
             rising
             percentage="8.1"
@@ -119,14 +119,14 @@ const DashboardPage = () => {
             accent
           />
           <Widget
-            label="Orders"
+            label="Metric label"
             value="1 942"
             rising={false}
             percentage="3.2"
             spark={sparkOrders}
           />
           <Widget
-            label="Conversion"
+            label="Metric label"
             value="4.7%"
             rising
             percentage="1.5"
@@ -140,36 +140,36 @@ const DashboardPage = () => {
             type="area"
             data={revenue}
             loading={loading}
-            title="Revenue"
-            subtitle="Monthly revenue vs. target"
+            title="Chart title"
+            subtitle="Chart subtitle · muted"
             span
           />
           <ChartCard
             type="pie"
             data={devices}
             loading={loading}
-            title="Traffic by device"
-            subtitle="Sessions this month"
+            title="Chart title"
+            subtitle="Chart subtitle · muted"
           />
         </section>
 
         <section className="dash-table-card" aria-label="Recent activity">
           <div className="dash-table-head">
             <div>
-              <div className="dash-table-title">Recent activity</div>
-              <div className="dash-table-subtitle">Latest 5 transactions</div>
+              <div className="dash-table-title">Table title</div>
+              <div className="dash-table-subtitle">Table subtitle · muted</div>
             </div>
             <button className="dash-table-btn" type="button">
-              View all
+              Text button
             </button>
           </div>
           <div className="dash-table-scroll">
             <table className="dash-table">
               <thead>
                 <tr>
-                  <th>Customer</th>
+                  <th>Column header</th>
                   <th>Status</th>
-                  <th className="dash-num">Amount</th>
+                  <th className="dash-num">Number</th>
                   <th className="dash-num">Date</th>
                 </tr>
               </thead>
