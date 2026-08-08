@@ -110,7 +110,7 @@ wiping the theme you were working on.
 
 ## Color math
 
-[`utilities/theme.js`](../src/utilities/theme.js) holds the pure logic — chroma-js, no React.
+[`lib/theme.ts`](../src/lib/theme.ts) holds the pure logic — chroma-js, no React.
 
 `generateVariant()` derives the opposite light/dark variant from a custom palette by
 nudging each color until it clears a contrast ratio against the derived background. That
@@ -149,17 +149,41 @@ Stripping `#`, using single-letter keys and URL-safe base64 keeps a full theme a
 validates the array length and returns `null` on anything malformed, so a mangled link falls
 back to defaults instead of crashing.
 
+## Making it useful to an assistant
+
+The original version only pointed one way: design here, export CSS. That was the right shape in 2024 and the wrong one now. Generating a palette is the cheap half — any assistant does it instantly. The expensive half is knowing whether it holds up.
+
+So the same core runs in three places:
+
+- **The web app** — paste tokens in, see them on a real landing page, sign-in screen and dashboard, graded.
+- **`theme-lab check`** — a CLI that exits non-zero when a pairing drops below AA, so contrast regressions fail a build instead of surviving review.
+- **An MCP server** — `check_contrast`, `parse_tokens`, `export_theme`, `preview_theme`, so an assistant can grade its own palette before writing any CSS.
+
+That meant pulling the logic out of the components into `src/lib/` as strict TypeScript with no DOM access. Node can't import a module that touches `document`, and that constraint turned out to be a good architectural forcing function — it's the same boundary that makes the logic testable.
+
+### The grader has to describe reality
+
+Adding a CLI exposed a bug I'd introduced earlier. The audit graded "Button label" as `background`-on-`primary`, which *was* what the CSS did — until I changed primary buttons to derive their label from `readableTextColor(primary)` to fix an unreadable sign-in panel. After that change the audit was measuring a pairing the browser never painted, and reporting failures nobody could act on.
+
+`AUDIT_PAIRS` now marks that row `derived`, and `auditPalette` resolves the foreground the same way the DOM does. A row that reports a failure the user cannot fix is worse than no row.
+
+### It failed its own test
+
+The first CI run of the contrast gate went red on the project's own default theme: amber `#f59e0b` on white is **2.15:1**, well under the 3:1 that large text needs — and accent *is* rendered as text on the sign-in and landing pages.
+
+Auditing every bundled preset showed 9 of 11 light variants failing, including one called "High Contrast" whose accent sat at 1.92:1. All of them are corrected now, and `tests/presets.test.ts` keeps them that way. A tool that grades other people's palettes has no business shipping ones that fail.
+
 ## Stack
 
-React 18 + Vite (SWC), React Router, chroma-js for all color math, Recharts for the
+React 18 + Vite (SWC), React Router, TypeScript for the core, Vitest for tests, chroma-js for all colour math, Recharts for the
 dashboard charts, plain CSS with custom properties — no CSS-in-JS, since the whole theming
 mechanism *is* custom properties and a runtime styling layer would just be in the way.
 
-CI runs ESLint and a production build on every push and PR.
+CI runs ESLint, `tsc`, the test suite, both builds, and the contrast gate on every push and PR.
 
 ## What I'd do next
 
 - Adjustable type scale, reflected in the export.
 - More export targets (SCSS, Style Dictionary tokens).
 - Import a palette from an image or a pasted hex list.
-- Code-split the dashboard route — Recharts is most of the ~700 kB bundle.
+- Adjustable type scale, reflected in the export and the audit.

@@ -5,7 +5,9 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
-  { ignores: ['dist'] },
+  // `dist-node` is compiled output for the CLI and MCP server — linting build
+  // artifacts as browser code just reports `process` as undefined.
+  { ignores: ['dist', 'dist-node', 'coverage'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {

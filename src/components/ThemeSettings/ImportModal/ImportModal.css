@@ -1,0 +1,232 @@
+.import-open-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 38px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--app-text);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.import-open-btn:hover {
+  background: var(--app-elevated);
+}
+
+.import-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(6, 8, 12, 0.72);
+}
+
+.import-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(600px, 100%);
+  max-height: min(86vh, 780px);
+  overflow-y: auto;
+  padding: 24px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  box-shadow: var(--app-shadow);
+}
+
+.import-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.import-head h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--app-text);
+}
+
+.import-close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--app-text-dim);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+}
+
+.import-close:hover {
+  color: var(--app-text);
+  background: var(--app-elevated);
+}
+
+.import-note {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--app-text-dim);
+}
+
+.import-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--app-text-faint);
+}
+
+.import-input {
+  width: 100%;
+  resize: vertical;
+  padding: 12px 14px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--app-text);
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+}
+
+.import-input:focus {
+  outline: 2px solid var(--app-brand-strong);
+  outline-offset: 1px;
+}
+
+.import-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.import-status svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.import-status.ok {
+  color: #6ee7a8;
+}
+
+.import-status.error {
+  color: var(--app-danger);
+}
+
+.import-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.import-swatch {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: 9px;
+}
+
+.import-chip {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  border: 1px solid var(--app-border);
+  border-radius: 6px;
+}
+
+/* Dashed edge marks a role the paste didn't carry, kept from the current theme. */
+.import-chip.inherited {
+  border-style: dashed;
+  opacity: 0.72;
+}
+
+.import-role {
+  flex: 1;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--app-text);
+  text-transform: capitalize;
+}
+
+.import-hex {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.72rem;
+  color: var(--app-text-faint);
+}
+
+.import-verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 11px 13px;
+  font-size: 0.83rem;
+  line-height: 1.45;
+  border-radius: 10px;
+}
+
+.import-verdict svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.import-verdict.pass {
+  color: #6ee7a8;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.28);
+}
+
+.import-verdict.fail {
+  color: #fca5a5;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+}
+
+.import-apply-btn {
+  height: 44px;
+  margin-top: 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(180deg, var(--app-brand) 0%, var(--app-brand-strong) 100%);
+  border: none;
+  border-radius: 10px;
+  transition: filter 0.15s ease;
+}
+
+.import-apply-btn:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+
+.import-apply-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .import-modal {
+    padding: 18px;
+  }
+  .import-swatches {
+    grid-template-columns: 1fr;
+  }
+}

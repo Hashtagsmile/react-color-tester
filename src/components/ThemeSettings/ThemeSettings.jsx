@@ -7,6 +7,7 @@ import { predefinedFonts } from "../../data/predefinedThemes";
 import { useTheme } from "../../contexts/useTheme";
 import { ColorPicker } from "./ColorPicker/ColorPicker";
 import { ExportModal } from "./ExportModal/ExportModal";
+import { ImportModal } from "./ImportModal/ImportModal";
 import { ActionControls } from "./ActionControls/ActionControls";
 import { ContrastPanel } from "./ContrastPanel/ContrastPanel";
 import { PresetGrid } from "./PresetGrid/PresetGrid";
@@ -141,6 +142,7 @@ export const ThemeSettings = () => {
         </div>
 
         <div className="settings-footer">
+          <ImportModal />
           <ExportModal />
         </div>
       </div>

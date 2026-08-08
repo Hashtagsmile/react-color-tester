@@ -99,6 +99,8 @@
 .intro-step-title {
   margin: 0 0 6px;
   font-size: 0.98rem;
+  /* Keep the three titles on one line each so the cards stay visually level. */
+  white-space: nowrap;
   color: var(--app-text);
 }
 

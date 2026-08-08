@@ -1,6 +1,6 @@
 import "./PresetGrid.css";
 import { predefinedThemes } from "../../../data/predefinedThemes";
-import { COLOR_KEYS } from "../../../utilities/theme";
+import { COLOR_KEYS } from "../../../lib";
 import { useTheme } from "../../../contexts/useTheme";
 
 export const PresetGrid = () => {

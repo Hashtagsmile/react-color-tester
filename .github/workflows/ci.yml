@@ -21,5 +21,21 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Compiles the shared core plus the CLI and MCP server. Has to run before
+      # the tests — the MCP integration test drives the compiled server.
+      - name: Build CLI and MCP server
+        run: npm run build:node
+
+      - name: Test
+        run: npm test
+
+      - name: Build web app
         run: npm run build
+
+      # The tool's own promise is that themes stay accessible. Proving it on the
+      # shipped presets keeps that honest.
+      - name: Contrast gate — bundled presets
+        run: node dist-node/bin/theme-lab.js check src/lib/__fixtures__/default-theme.css

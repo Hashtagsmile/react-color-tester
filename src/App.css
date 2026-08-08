@@ -28,6 +28,13 @@
   flex: 0 0 auto;
 }
 
+/* Holds the preview's height while a split route chunk loads, so the window
+   frame doesn't collapse and snap back. */
+.route-loading {
+  min-height: 100%;
+  background: var(--color-background);
+}
+
 /* Jump link to the editor — only meaningful once the sidebar stacks below. */
 .editor-jump {
   display: none;

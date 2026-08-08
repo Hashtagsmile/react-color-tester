@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { LuCopy, LuCheck, LuX, LuDownload, LuSparkles } from "react-icons/lu";
 import { useTheme } from "../../../contexts/useTheme";
-import { generateVariant } from "../../../utilities/theme";
 import { predefinedThemes } from "../../../data/predefinedThemes";
-import { EXPORTERS } from "../../../utilities/exporters";
+import { useModal } from "../../Modal/useModal";
 import "./ExportModal.css";
+import { EXPORTERS, generateVariant } from "../../../lib";
 
 const FORMATS = ["AI", "CSS", "Tailwind", "JSON"];
 const COLOR_FORMATS = ["HEX", "RGB", "HSL"];
@@ -36,6 +36,11 @@ export const ExportModal = () => {
     return EXPORTERS[format](light, dark, fonts, { colorFormat, bothModes, current });
   }, [format, colorFormat, bothModes, light, dark, isDarkMode, fonts]);
 
+  const close = useCallback(() => setOpen(false), []);
+
+  // Scroll lock, Escape, focus trap and focus restore.
+  const dialogRef = useModal(open, close);
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(output);
@@ -53,11 +58,19 @@ export const ExportModal = () => {
       </button>
 
       {open && (
-        <div className="export-overlay" role="dialog" aria-modal="true" onClick={() => setOpen(false)}>
-          <div className="export-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="export-overlay" onClick={close}>
+          <div
+            className="export-modal"
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="export-title"
+            tabIndex={-1}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="export-head">
-              <h3>Export theme</h3>
-              <button className="export-close" onClick={() => setOpen(false)} aria-label="Close">
+              <h3 id="export-title">Export theme</h3>
+              <button className="export-close" onClick={close} aria-label="Close">
                 <LuX />
               </button>
             </div>

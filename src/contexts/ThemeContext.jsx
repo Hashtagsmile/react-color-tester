@@ -1,14 +1,14 @@
 import { createContext, useEffect, useReducer } from "react";
-import { predefinedThemes } from "../data/predefinedThemes";
-import { readableTextColor } from "../utilities/utilities";
+import { predefinedFonts, predefinedThemes } from "../data/predefinedThemes";
 import {
   COLOR_KEYS,
+  decodeTheme,
+  encodeTheme,
   generateVariant,
   randomColors,
   randomFonts,
-  encodeTheme,
-  decodeTheme,
-} from "../utilities/theme";
+  readableTextColor,
+} from "../lib";
 
 export const ThemeContext = createContext(null);
 
@@ -91,7 +91,7 @@ const reducer = (state, action) => {
       });
 
     case "RANDOMIZE_FONTS":
-      return withHistory(state, { fonts: randomFonts() });
+      return withHistory(state, { fonts: randomFonts(predefinedFonts) });
 
     // Locks are a meta-setting, not a theme value — deliberately not on the undo stack.
     case "TOGGLE_LOCK":
@@ -135,6 +135,16 @@ const reducer = (state, action) => {
         checkpoint: null,
       };
     }
+
+    // Tokens pasted in from outside (an AI assistant, an existing codebase).
+    // Undoable like any other edit, so it's safe to try one and step back.
+    case "IMPORT_THEME":
+      return withHistory(state, {
+        colors: action.colors,
+        fonts: action.fonts ?? state.fonts,
+        themeName: "Imported",
+        isCustom: true,
+      });
 
     case "RESET":
       return {
@@ -287,6 +297,8 @@ export const ThemeProvider = ({ children }) => {
     undo: () => dispatch({ type: "UNDO" }),
     redo: () => dispatch({ type: "REDO" }),
     reset: () => dispatch({ type: "RESET" }),
+    importTheme: (importedColors, importedFonts) =>
+      dispatch({ type: "IMPORT_THEME", colors: importedColors, fonts: importedFonts }),
 
     // shareable deep link
     shareUrl: () => {

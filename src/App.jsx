@@ -1,4 +1,5 @@
 import "./App.css";
+import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { LuSlidersHorizontal } from "react-icons/lu";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -8,7 +9,11 @@ import { ThemeSettings } from "./components/ThemeSettings/ThemeSettings";
 import { IntroOverlay } from "./components/Intro/IntroOverlay";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
-import DashboardPage from "./pages/DashboardPage";
+
+// The dashboard is the only surface that pulls in Recharts, which is the bulk of
+// the bundle. Splitting it here keeps the landing route — the one a first-time
+// visitor actually lands on — from paying for charts it never renders.
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 
 function App() {
   return (
@@ -18,11 +23,13 @@ function App() {
           <TopBar />
           <div className="workspace">
             <PreviewPane>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/signin" element={<AboutPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-              </Routes>
+              <Suspense fallback={<div className="route-loading" aria-busy="true" />}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/signin" element={<AboutPage />} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                </Routes>
+              </Suspense>
             </PreviewPane>
             <ThemeSettings />
           </div>
