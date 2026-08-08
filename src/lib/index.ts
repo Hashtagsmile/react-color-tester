@@ -8,5 +8,6 @@ export * from "./theme.js";
 export * from "./discover.js";
 export * from "./audit.js";
 export * from "./remediate.js";
+export * from "./gate.js";
 export * from "./import.js";
 export * from "./exporters.js";

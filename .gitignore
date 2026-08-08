@@ -26,3 +26,6 @@ dist-ssr
 
 # Compiled CLI + MCP server output
 dist-node
+
+# theme-lab: local pack output
+theme-lab-*.tgz

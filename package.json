@@ -2,7 +2,7 @@
   "name": "theme-lab",
   "private": true,
   "version": "1.0.0",
-  "description": "A live editor for designing accessible color and font themes — preview on real UI, check WCAG contrast, and export ready-to-paste CSS.",
+  "description": "Contrast checking for design tokens. Discovers your real colour pairings from your CSS and fails the build when they regress.",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "build:node": "tsc -p tsconfig.lib.json"
+    "build:node": "tsc -p tsconfig.lib.json",
+    "prepublishOnly": "npm run build:node && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
@@ -46,5 +47,35 @@
   "bin": {
     "theme-lab": "dist-node/bin/theme-lab.js",
     "theme-lab-mcp": "dist-node/mcp/server.js"
-  }
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "wcag",
+    "contrast",
+    "design-tokens",
+    "design-system",
+    "css",
+    "css-variables",
+    "custom-properties",
+    "color",
+    "cli",
+    "ci",
+    "mcp",
+    "linter"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hashtagsmile/react-color-tester.git"
+  },
+  "homepage": "https://react-color-tester.vercel.app",
+  "bugs": {
+    "url": "https://github.com/Hashtagsmile/react-color-tester/issues"
+  },
+  "files": [
+    "dist-node",
+    "README.md",
+    "LICENSE"
+  ]
 }
