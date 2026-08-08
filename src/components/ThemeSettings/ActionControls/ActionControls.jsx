@@ -1,66 +1,51 @@
-import { useContext } from "react";
-import { ThemeContext } from "../../../contexts/ThemeContext";
 import { MdUndo, MdRedo, MdDarkMode, MdLightMode } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
+import { useTheme } from "../../../contexts/useTheme";
 import "./ActionControls.css";
 
 export const ActionControls = () => {
   const {
-    undoTheme,
-    redoTheme,
-    resetTheme,
-    themeHistory,
-    redoStack,
+    undo,
+    redo,
+    reset,
+    canUndo,
+    canRedo,
+    editCount,
     isDarkMode,
     toggleDarkMode,
-  } = useContext(ThemeContext);
+  } = useTheme();
 
   return (
     <div className="action-controls">
-      <div className="action-top-container">
-        <div className="undo-redo-container">
-          <button
-            onClick={undoTheme}
-            disabled={themeHistory.length === 0}
-            className={themeHistory.length === 0 ? "disabled" : ""}
-          >
-            <MdUndo className="action-icon" />
-          </button>
-          <button
-            onClick={redoTheme}
-            disabled={redoStack.length === 0}
-            className={redoStack.length === 0 ? "disabled" : ""}
-          >
-            <MdRedo className="action-icon" />
-          </button>
-        </div>
-        <div className="reset-container">
-          <button
-            onClick={resetTheme}
-            disabled={themeHistory.length === 0 && redoStack.length === 0}
-            className={
-              themeHistory.length === 0 && redoStack.length === 0
-                ? "redo-button-disabled"
-                : "redo-button"
-            }
-          >
-            <RxReset className="action-icon" />
-          </button>
-        </div>
-      </div>
-      <div className="mode-contaner">
-        <div className="mode">
-          <span className="highlight">Current mode:</span>
-          <div>{isDarkMode ? <div>Dark mode</div> : <div>Light mode</div>}</div>
-        </div>
-        <button className="toggle-mode" onClick={toggleDarkMode}>
-          {isDarkMode ? <MdDarkMode /> : <MdLightMode />}
+      <div className="action-group">
+        <button onClick={undo} disabled={!canUndo} title="Undo" aria-label="Undo">
+          <MdUndo />
         </button>
+        <button onClick={redo} disabled={!canRedo} title="Redo" aria-label="Redo">
+          <MdRedo />
+        </button>
+        <button
+          onClick={reset}
+          disabled={!canUndo && !canRedo}
+          title="Reset to preset"
+          aria-label="Reset"
+        >
+          <RxReset />
+        </button>
+        <span className="edit-count" title="Changes on the undo stack">
+          {editCount} {editCount === 1 ? "edit" : "edits"}
+        </span>
       </div>
-      <div className="edit-container">
-        <span className="highlight">Edits done:</span>
-        <div>{themeHistory.length}</div>
-      </div>
+
+      <button
+        className="mode-toggle"
+        onClick={toggleDarkMode}
+        aria-pressed={isDarkMode}
+        title="Toggle preview light / dark"
+      >
+        {isDarkMode ? <MdDarkMode /> : <MdLightMode />}
+        <span>{isDarkMode ? "Dark" : "Light"}</span>
+      </button>
     </div>
   );
 };

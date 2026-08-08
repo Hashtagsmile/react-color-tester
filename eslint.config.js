@@ -5,7 +5,9 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
-  { ignores: ['dist'] },
+  // `dist-node` is compiled output for the CLI and MCP server — linting build
+  // artifacts as browser code just reports `process` as undefined.
+  { ignores: ['dist', 'dist-node', 'coverage'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -29,8 +31,8 @@ export default [
       ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
       'react/jsx-no-target-blank': 'off',
-      // This project does not use the PropTypes runtime checker; component
-      // contracts are documented at the call site instead.
+      // This is a plain-JS project and `prop-types` is deprecated as of React 19,
+      // so runtime prop validation is not the tool we reach for here.
       'react/prop-types': 'off',
       'react-refresh/only-export-components': [
         'warn',

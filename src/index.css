@@ -1,104 +1,126 @@
-/* Google fonts */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;700&family=Oswald:wght@400;700&family=Poppins:wght@400;700&family=Merriweather:wght@400;700&family=Lobster&family=Raleway:wght@400;700&family=Nunito:wght@400;700&family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@400;700&family=Ubuntu:wght@400;700&family=Work+Sans:wght@400;700&family=Fira+Sans:wght@400;700&family=Rubik:wght@400;700&family=Cabin:wght@400;700&family=Anton&family=Quicksand:wght@400;700&family=Josefin+Sans:wght@400;700&family=Inter:wght@400;700&display=swap');
+/* Fonts offered in the editor (system fonts omitted — they need no network). */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Lato:wght@400;700&family=Montserrat:wght@400;600;700&family=Nunito:wght@400;600;700&family=Raleway:wght@400;600;700&family=Work+Sans:wght@400;600;700&family=Rubik:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Josefin+Sans:wght@400;600;700&family=Oswald:wght@400;600&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Lora:wght@400;600;700&family=Lobster&family=Bebas+Neue&family=Anton&display=swap');
 
 :root {
-  --color-primary: #004080; /* Dark Blue for high contrast */
-  --color-secondary: #e6e6e6; /* Light Gray for subtle backgrounds */
-  --color-background: #ffffff; /* White for a bright and clear background */
-  --color-accent: #ffcc00; /* Bright Yellow for accessible call-to-action elements */
-  --color-text: #222222; /* Almost black for high legibility */
+  /* ----- App chrome (fixed — the tool itself never re-themes) ----- */
+  --app-bg: #0b0d12;
+  --app-surface: #14171f;
+  --app-surface-2: #1c212c;
+  --app-elevated: #232936;
+  --app-border: #2b3240;
+  --app-text: #e6e9ef;
+  --app-text-dim: #9aa4b2;
+  --app-text-faint: #6b7480;
+  --app-brand: #7c8bff;
+  --app-brand-strong: #5b6cff;
+  --app-danger: #f26d6d;
+  --app-radius: 10px;
+  --app-radius-sm: 7px;
+  --app-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --app-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --app-font: 'Inter', system-ui, -apple-system, sans-serif;
 
-  --header-font-family: 'Roboto', sans-serif; /* Default header font */
-  --body-font-family: 'Open Sans', sans-serif; /* Default body font */
-  --font-size-base: 16px; /* Base font size */
-  --font-size-heading: 32px; /* Font size for headings */
-  --font-spacing: 1px; /* Letter spacing */
-  --border-radius: 4px;
-  --border-radius: 4px;
-  
+  /* ----- Themed preview tokens (overwritten live by JS) ----- */
+  --color-primary: #4f46e5;
+  --color-secondary: #64748b;
+  --color-background: #ffffff;
+  --color-accent: #bf7100;
+  --color-text: #0f172a;
 
-  font-family: var(--body-font-family), sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Readable foregrounds for anything painted on a brand color. Recomputed by
+     the provider on every theme change; these are the pre-hydration values. */
+  --on-primary: #ffffff;
+  --on-accent: #000000;
 
+  --header-font-family: 'Poppins', system-ui, sans-serif;
+  --body-font-family: 'Inter', system-ui, sans-serif;
+  --border-radius: 8px;
+
+  color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Light mode custom sidebar variables */
-:root[data-theme="light"] {
-  --sidebar-bg-light: #ffffff;
-  --sidebar-text-light: #222222;
-  --sidebar-border-light: #e0e0e0;
-}
-
-/* Dark mode custom sidebar variables */
-:root[data-theme="dark"] {
-  --sidebar-bg-dark: #111214;
-  --sidebar-text-dark: #cfcfcf;
-  --sidebar-border-dark: #26292e;
+* {
+  box-sizing: border-box;
 }
 
 body {
-  font-family: var(--body-font-family), sans-serif;
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  color: var(--color-text);
-  background-color: var(--color-background);
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--header-font-family), sans-serif;
-  color: var(--color-primary);
-}
-
-h1 {
-  font-size: var(--font-size-heading);
-  line-height: 1.1;
-}
-
-h2 {
-  font-size: 2.5em;
-}
-
-h3 {
-  font-size: 2em;
-}
-
-h4 {
-  font-size: 1.5em;
+  font-family: var(--app-font);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--app-text);
+  background-color: var(--app-bg);
 }
 
 button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Themed preview surface                                            */
+/*  Only elements INSIDE .preview-surface pick up the user's theme.   */
+/* ------------------------------------------------------------------ */
+
+.preview-surface {
   font-family: var(--body-font-family);
-  color: white;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  line-height: 1.5;
+}
+
+.preview-surface h1,
+.preview-surface h2,
+.preview-surface h3,
+.preview-surface h4,
+.preview-surface h5,
+.preview-surface h6 {
+  font-family: var(--header-font-family);
+  color: var(--color-primary);
+  line-height: 1.15;
+  margin-top: 0;
+}
+
+.preview-surface h1 { font-size: 2.5rem; }
+.preview-surface h2 { font-size: 2rem; }
+.preview-surface h3 { font-size: 1.5rem; }
+.preview-surface h4 { font-size: 1.25rem; }
+
+.preview-surface p { margin-bottom: 1.5rem; }
+
+.preview-surface button {
+  font-family: var(--body-font-family);
+  color: var(--color-background);
   background-color: var(--color-primary);
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.1rem;
   border: none;
   border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: filter 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
-button:hover {
-  color: var(--color-text);
-  background-color: var(--color-accent);
+.preview-surface button:hover {
+  filter: brightness(1.08);
 }
 
-a {
+.preview-surface a {
   color: var(--color-primary);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
-a:hover {
+.preview-surface a:hover {
   color: var(--color-accent);
 }
 
-/* Spacing for paragraph text */
-p {
-  margin-bottom: 1.5rem;
+/* Reusable focus ring for the app chrome */
+:where(button, a, input, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--app-brand);
+  outline-offset: 2px;
+  border-radius: var(--app-radius-sm);
 }

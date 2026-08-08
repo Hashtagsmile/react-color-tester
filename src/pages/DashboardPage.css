@@ -1,33 +1,472 @@
-.dashboard {
-    padding: 2rem;
+/* Dashboard preview page — an analytics APP SHELL.
+   Every selector is scoped under .page-dashboard so nothing leaks onto
+   the tool's own chrome. Only themed tokens are used, and every surface
+   is derived from the theme with color-mix so it holds up under ANY palette.
+
+   Radius scale: 12px cards · 8px controls · 999px pills.
+   Spacing scale: 8 / 12 / 16 / 24 / 32. */
+
+.page-dashboard {
+  display: grid;
+  grid-template-columns: 208px minmax(0, 1fr);
+  gap: 0;
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--body-font-family);
+}
+
+/* ============================ NAV RAIL ============================ */
+.page-dashboard .dash-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 16px;
+  border-right: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  background-color: color-mix(in srgb, var(--color-text) 3%, var(--color-background));
+}
+
+.page-dashboard .dash-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px;
+}
+
+.page-dashboard .dash-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--on-primary);
+  background-color: var(--color-primary);
+}
+
+.page-dashboard .dash-brand-name {
+  font-family: var(--header-font-family);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.page-dashboard .dash-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page-dashboard .dash-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-family: var(--body-font-family);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: color-mix(in srgb, var(--color-text) 62%, var(--color-background));
+  transition: background-color 0.16s ease, color 0.16s ease;
+}
+
+.page-dashboard .dash-nav-item:hover {
+  color: var(--color-text);
+  background-color: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+.page-dashboard .dash-nav-item.is-active {
+  color: var(--color-primary);
+  font-weight: 600;
+  background-color: color-mix(in srgb, var(--color-primary) 12%, var(--color-background));
+}
+
+.page-dashboard .dash-nav-item.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+}
+
+.page-dashboard .dash-nav-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.page-dashboard .dash-rail-card {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+  background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-background));
+}
+
+.page-dashboard .dash-rail-card-title {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.page-dashboard .dash-rail-card-body {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--color-text) 60%, var(--color-background));
+}
+
+.page-dashboard .dash-rail-card-btn {
+  margin-top: 4px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--body-font-family);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--on-primary);
+  background-color: var(--color-primary);
+  transition: filter 0.16s ease;
+}
+
+.page-dashboard .dash-rail-card-btn:hover {
+  filter: brightness(1.08);
+}
+
+/* ============================ MAIN AREA ============================ */
+.page-dashboard .dash-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 28px 32px;
+  min-width: 0;
+}
+
+/* ---- Top bar ---- */
+.page-dashboard .dash-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-dashboard .dash-title {
+  margin: 0;
+  font-family: var(--header-font-family);
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.page-dashboard .dash-subtitle {
+  margin: 4px 0 0;
+  font-family: var(--body-font-family);
+  font-size: 0.88rem;
+  color: color-mix(in srgb, var(--color-text) 55%, var(--color-background));
+}
+
+.page-dashboard .dash-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-dashboard .dash-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.page-dashboard .dash-search-icon {
+  position: absolute;
+  left: 11px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  color: color-mix(in srgb, var(--color-text) 48%, var(--color-background));
+}
+
+.page-dashboard .dash-search-input {
+  width: 200px;
+  max-width: 46vw;
+  padding: 9px 12px 9px 34px;
+  border-radius: 8px;
+  font-family: var(--body-font-family);
+  font-size: 0.88rem;
+  color: var(--color-text);
+  background-color: color-mix(in srgb, var(--color-text) 4%, var(--color-background));
+  border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.page-dashboard .dash-search-input::placeholder {
+  color: color-mix(in srgb, var(--color-text) 45%, var(--color-background));
+}
+
+.page-dashboard .dash-search-input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 16%, transparent);
+}
+
+.page-dashboard .dash-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  font-family: var(--body-font-family);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--on-accent);
+  background-color: var(--color-accent);
+}
+
+/* ---- KPI row ---- */
+.page-dashboard .dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* ---- Charts row ---- */
+.page-dashboard .dash-charts {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* ============================ TABLE CARD ============================ */
+.page-dashboard .dash-table-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: color-mix(in srgb, var(--color-text) 4%, var(--color-background));
+  border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+.page-dashboard .dash-table-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.page-dashboard .dash-table-title {
+  font-family: var(--header-font-family);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.page-dashboard .dash-table-subtitle {
+  margin-top: 3px;
+  font-family: var(--body-font-family);
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--color-text) 55%, var(--color-background));
+}
+
+.page-dashboard .dash-table-btn {
+  padding: 7px 13px;
+  border-radius: 8px;
+  font-family: var(--body-font-family);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background-color: transparent;
+  border: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.page-dashboard .dash-table-btn:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 10%, var(--color-background));
+  border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+.page-dashboard .dash-table-scroll {
+  overflow-x: auto;
+}
+
+.page-dashboard .dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--body-font-family);
+}
+
+.page-dashboard .dash-table thead th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 50%, var(--color-background));
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  white-space: nowrap;
+}
+
+.page-dashboard .dash-table tbody td {
+  padding: 12px;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
+  vertical-align: middle;
+}
+
+.page-dashboard .dash-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.page-dashboard .dash-table tbody tr {
+  transition: background-color 0.14s ease;
+}
+
+.page-dashboard .dash-table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--color-text) 4%, transparent);
+}
+
+.page-dashboard .dash-num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Customer cell */
+.page-dashboard .dash-cust {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.page-dashboard .dash-cust-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 14%, var(--color-background));
+}
+
+.page-dashboard .dash-cust-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.page-dashboard .dash-cust-name {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.page-dashboard .dash-cust-email {
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--color-text) 52%, var(--color-background));
+}
+
+.page-dashboard .dash-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.page-dashboard .dash-date {
+  color: color-mix(in srgb, var(--color-text) 58%, var(--color-background));
+}
+
+/* Status pills */
+.page-dashboard .dash-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.page-dashboard .dash-pill.is-paid {
+  color: #15803d;
+  background-color: color-mix(in srgb, #22c55e 16%, var(--color-background));
+}
+
+.page-dashboard .dash-pill.is-pending {
+  color: #b45309;
+  background-color: color-mix(in srgb, #f59e0b 18%, var(--color-background));
+}
+
+.page-dashboard .dash-pill.is-refunded {
+  color: #b91c1c;
+  background-color: color-mix(in srgb, #ef4444 15%, var(--color-background));
+}
+
+/* ============================ RESPONSIVE ============================ */
+@media (max-width: 900px) {
+  .page-dashboard .dash-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  /* Rail hides; content becomes the whole frame. */
+  .page-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .page-dashboard .dash-rail {
+    display: none;
+  }
+
+  .page-dashboard .dash-main {
+    padding: 20px 18px 28px;
+  }
+
+  .page-dashboard .dash-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-dashboard .dash-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .page-dashboard .dash-topbar-actions {
     width: 100%;
-    display: flex;
-    flex-direction: Column;
-}
+  }
 
-.widgets-title{
-    display: flex;
-    justify-content: start;
-}
+  .page-dashboard .dash-search {
+    flex: 1;
+  }
 
-.widgets-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.dashboard-widgets {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-}
-
-.dashboard-content {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+  .page-dashboard .dash-search-input {
     width: 100%;
-    row-gap: 1rem;
-    column-gap: 1rem;
+    max-width: none;
+  }
 }
-

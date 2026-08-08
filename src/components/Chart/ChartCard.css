@@ -1,49 +1,113 @@
-.chart-card {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--color-secondary);
-    padding: 2rem;
-    border-radius: 6px;
-    /**box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);**//
-  }
-  
-  .title-container{
-    display: flex;
-    justify-content: start;
-    color: var(--color-text);
-    font-size: 18px;
-    margin-bottom: 1rem;
-  }
+/* Chart card — scoped under .page-dashboard so it can't leak onto chrome.
+   Surface + depth derived from the theme via color-mix (never a flat fill). */
 
-  .chart-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
+.page-dashboard .chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: color-mix(in srgb, var(--color-text) 4%, var(--color-background));
+  border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-text) 6%, transparent);
+}
 
-  .loading-spinner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%; /* Full height of the chart card */
-    font-size: 1.2rem;
-    color: var(--color-text);
+.page-dashboard .chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.page-dashboard .chart-title {
+  font-family: var(--header-font-family);
+  color: var(--color-text);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.page-dashboard .chart-subtitle {
+  margin-top: 3px;
+  font-family: var(--body-font-family);
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--color-text) 55%, var(--color-background));
+}
+
+.page-dashboard .chart-container {
+  min-height: 180px;
+}
+
+/* ---- Pie / donut with themed legend ---- */
+.page-dashboard .pie-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.page-dashboard .pie-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.page-dashboard .pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--body-font-family);
+  font-size: 0.86rem;
+  color: var(--color-text);
+}
+
+.page-dashboard .pie-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.page-dashboard .pie-name {
+  color: color-mix(in srgb, var(--color-text) 72%, var(--color-background));
+}
+
+.page-dashboard .pie-pct {
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* ---- Loading state (kept from original) ---- */
+.page-dashboard .loading-spinner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  height: 240px;
+  font-family: var(--body-font-family);
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--color-text) 60%, var(--color-background));
+}
+
+@keyframes page-dashboard-spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  /* You can add a rotating animation for the spinner */
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
   }
-  
-  /* Optional spinner style */
-  .loading-spinner::before {
-    content: "";
-    width: 30px;
-    height: 30px;
-    border: 4px solid var(--color-primary);
-    border-top: 4px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
+}
+
+.page-dashboard .loading-spinner::before {
+  content: "";
+  width: 28px;
+  height: 28px;
+  border: 3px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: page-dashboard-spin 0.9s linear infinite;
+}

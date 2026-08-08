@@ -1,0 +1,142 @@
+.preview-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 20px;
+  gap: 0;
+}
+
+/* Browser-window chrome around the themed content */
+.preview-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 46px;
+  padding: 0 14px;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+}
+
+.preview-dots {
+  display: flex;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+
+.preview-dots span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #3a4150;
+}
+
+.preview-dots span:nth-child(1) { background: #ff5f57; }
+.preview-dots span:nth-child(2) { background: #febc2e; }
+.preview-dots span:nth-child(3) { background: #28c840; }
+
+.preview-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--app-bg);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--app-border);
+}
+
+.preview-tab {
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--app-text-dim);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+
+.preview-tab:hover {
+  color: var(--app-text);
+}
+
+.preview-tab.active {
+  color: #fff;
+  background: var(--app-brand-strong);
+}
+
+.preview-url {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.preview-url-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.preview-url-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
+}
+
+.preview-url-text {
+  font-size: 0.78rem;
+  color: var(--app-text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scrollable viewport that clips the themed surface into the "window" */
+.preview-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--app-border);
+  border-radius: 0 0 12px 12px;
+  box-shadow: var(--app-shadow);
+  background: var(--color-background);
+}
+
+.preview-surface {
+  min-height: 100%;
+}
+
+@media (max-width: 900px) {
+  .preview-pane {
+    padding: 12px;
+    height: 78vh;
+  }
+  .preview-url {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .preview-tabs {
+    gap: 2px;
+    padding: 3px;
+  }
+  .preview-tab {
+    padding: 5px 9px;
+    font-size: 0.76rem;
+  }
+}

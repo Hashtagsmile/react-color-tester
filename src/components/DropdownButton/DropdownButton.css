@@ -1,19 +1,39 @@
-/* Default Dropdown Styling (for light mode) */
-.dropdown {
-    width: 100%;
-    padding: 10px 15px;
-    font-size: 16px;
-    font-family: inherit; /* Ensure the select inherits the page's font */
-    border: 1px solid rgb(122, 122, 122);;
-    border-radius: 6px;
-    background-color: white; /* Light background by default */
-    color: black; /* Text color for light mode */
-    transition: background-color 0.3s ease, color 0.3s ease;
+.dropdown-button {
+  position: relative;
+  width: 100%;
 }
 
-/* Dark Mode Styling */
-:root[data-theme="dark"] .dropdown {
-    background-color: var(--sidebar-bg-dark); /* Dark background for dark mode */
-    color: var(--sidebar-border-light); /* Text color for dark mode */
-    border: 2px solid var(--sidebar-border-dark); /* Adjust border to match dark mode */
+.dropdown {
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--app-text);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dropdown:hover {
+  border-color: #38414f;
+  background: var(--app-elevated);
+}
+
+.dropdown option {
+  color: #111;
+}
+
+.dropdown-caret {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--app-text-dim);
+  font-size: 1rem;
 }

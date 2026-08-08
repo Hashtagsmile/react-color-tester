@@ -1,0 +1,17 @@
+/*
+ * The palette Theme Lab ships as its default preset.
+ *
+ * CI runs `theme-lab check` against this file, so if someone changes the default
+ * theme to something that fails WCAG AA, the build goes red. The tool has to
+ * hold itself to the standard it grades other people's themes against.
+ */
+:root {
+  --color-primary: #4f46e5;
+  --color-secondary: #64748b;
+  --color-accent: #bf7100;
+  --color-background: #ffffff;
+  --color-text: #0f172a;
+
+  --font-heading: "Poppins", sans-serif;
+  --font-body: "Inter", sans-serif;
+}

@@ -1,93 +1,142 @@
+<div align="center">
+
+<img src="public/favicon.svg" width="72" alt="Theme Lab logo" />
+
 # Theme Lab
 
-**Design a colour and font theme, watch it apply to real UI as you type, then export the CSS variables.**
+**Design a color theme, preview it on real UI, and export the CSS — instantly.**
+
+Theme Lab is a live theme editor. Pick five colors and two fonts, watch them apply in real time to a real landing page, sign‑in screen and dashboard, keep an eye on WCAG contrast as you go, then export production‑ready CSS (or Tailwind / JSON) — or share the exact theme with a link. No account, nothing to install.
+
+[**▶ Live demo**](https://react-color-tester.vercel.app/) · Built with React + Vite + chroma‑js
 
 [![CI](https://github.com/Hashtagsmile/react-color-tester/actions/workflows/ci.yml/badge.svg)](https://github.com/Hashtagsmile/react-color-tester/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://react-color-tester.vercel.app/)
 
-**[▶ Try it live](https://react-color-tester.vercel.app/)**
+![Theme Lab — the editor on the right, a live-themed dashboard in the preview window, WCAG contrast grading every text pairing](.github/assets/screenshot.png)
 
-![Theme Lab — live theme editing with real-time preview](.github/assets/screenshot.png)
+</div>
 
-Picking colours in isolation is misleading: a palette that looks balanced on a swatch grid falls apart on
-an actual page. Theme Lab previews every change against three realistic screens — a landing page, a
-sign-in page and a dashboard — so contrast and hierarchy problems show up while you are still choosing.
-When the theme works, export it as ready-to-paste CSS custom properties.
+---
+
+## Why it exists
+
+Most color pickers show you swatches in a vacuum. The hard part isn't picking a nice blue — it's seeing how a whole palette behaves across real components, in light **and** dark, without failing contrast.
+
+That matters more now, not less. An assistant will hand you a palette in seconds; what it can't tell you is whether the thing survives contact with a real page. So Theme Lab works in both directions: design a theme here, **or paste in the tokens something else generated** and find out what they actually look like before you ship them.
 
 ## Features
 
-- **Customizable Global Theme Management**: The project utilizes a ThemeProvider with React’s createContext and useContext to manage and dynamically apply theme settings across the entire application.
-- **Dark/Light Theme Switching**: Customizable themes with support for dark and light modes. You can also randomize themes.
-- **Dynamic Color Picker**: Integrated color picker with copying features. Colors such as primary, secondary, accent, text and background colors can be changed in real-time.
-- **Font Customization**: Choose from predefined fonts or randomize the fonts. It supports fonts for text body and text header.
-- **Export Theme**: When you are done you can export your theme by coping the CSS variables and use in your own projects root css file. Choose between the current theme mode or both light and dark mode scheme.
-- **Various pages**: Three common and generic pages are available to customize, a classic landing page, a login page and a dashboard page.
-- **Dedicated settings sidebar**: The settings sidebar offers different parameters you can tweak.
-- **chroma-js** `chroma-js` for advanced color manipulation for the themes and the customization.
-- **Charts** Chart integration with a flexible charting library used on dummy data.
+- 📋 **Import anything** — paste CSS custom properties, a Tailwind config or JSON. Alias names (`brand`, `surface`, `ink`, `fg`) and scale suffixes (`-500`) are understood; missing roles are reported rather than invented.
+- ♿ **Live WCAG contrast** — every pairing the preview actually renders is graded AA / AAA / Fail in real time.
+- 🎨 **Five‑role palette** — primary, secondary, accent, background and text, edited live with the native color picker.
+- 🔤 **Font pairing** — 20+ heading/body typefaces (Google Fonts + system), with live previews.
+- 🖥️ **Real preview surfaces** — a marketing landing page, a sign‑in screen and an analytics dashboard, all re‑skinned instantly.
+- 🌗 **Light & dark** — toggle the preview mode; custom themes derive a matching variant automatically.
+- 🎲 **Presets, randomize & lock** — start from a curated preset, lock the colors you love, and randomize the rest around them.
+- ↩️ **Undo / redo** — a proper history stack for every change.
+- 📦 **Export** — CSS custom properties, a Tailwind config, JSON, or an AI‑ready brief — in HEX / RGB / HSL.
+- 🔗 **Shareable links** — the full theme is encoded in the URL, and your work is auto‑saved to `localStorage`.
+- 🤖 **CLI + MCP server** — gate contrast in CI, or let a coding assistant check its own palette. See below.
 
+## How it works
 
-## Prerequisites
+1. **Start a palette** — a preset, from scratch, or paste tokens you already have.
+2. **See it on real UI** — switch between the landing / sign‑in / dashboard tabs and toggle dark mode.
+3. **Check, then ship** — read the contrast grades, then export the CSS or copy a link that reopens your exact theme.
 
-To run this application, ensure you have the following installed:
+## Beyond the browser
 
-- [Node.js](https://nodejs.org/en/download/) (LTS version recommended)
-- npm or yarn package manager
+The colour maths lives in a dependency‑light TypeScript core (`src/lib/`) that the web app, a CLI and an MCP server all share — so a palette can't pass in one place and fail in another.
 
-## Additional dependencies
-The project also uses the following dependencies:
+### Contrast gate for CI
 
-- chroma-js: A JavaScript library for color conversions and color scales.
-- Charting library Recharts
+```bash
+npm run build:node
+npx theme-lab check src/styles/tokens.css     # exits 1 if any pairing drops below AA
+npx theme-lab check tokens.css --min aaa --json
+npx theme-lab export tokens.css tailwind
+```
 
+Assistants generate a lot of CSS. This turns "did the palette stay accessible" into a build step instead of something a human has to catch in review. This repo's own CI runs it against the default theme.
 
-## Getting Started
+### MCP server
 
-### 1. Clone the Repository
+Lets Claude Code, Cursor or any MCP client check a palette *before* it writes the CSS:
+
+```json
+{
+  "mcpServers": {
+    "theme-lab": { "command": "node", "args": ["/path/to/react-color-tester/dist-node/mcp/server.js"] }
+  }
+}
+```
+
+| Tool | Does |
+|---|---|
+| `check_contrast` | Grades a palette against WCAG 2.1, with advice on what to change |
+| `export_theme` | Converts a palette to CSS / Tailwind / JSON / a design brief |
+| `parse_tokens` | Reads a palette out of an existing codebase's tokens |
+| `preview_theme` | Returns a share link so a human can eyeball it on real UI |
+
+## Tech stack
+
+| Area | Choice |
+|---|---|
+| Framework | React 18 + Vite (SWC) |
+| Core logic | TypeScript (strict), DOM‑free so Node can import it |
+| Tests | Vitest — 64 covering colour maths, parser, exporters, presets, MCP |
+| Routing | React Router, dashboard route lazy‑loaded |
+| Color math | chroma‑js (conversions, contrast, scales) |
+| Charts | Recharts |
+| Icons | react‑icons |
+| State | `useReducer` + Context, persisted to `localStorage` |
+| Agent interface | `@modelcontextprotocol/sdk` over stdio |
+| CI | ESLint, `tsc`, Vitest, both builds, and a WCAG contrast gate |
+
+## Architecture notes
+
+- **Chrome vs. canvas.** The app's own UI (top bar, sidebar) uses a fixed dark palette (`--app-*` variables) and never re‑themes. Only the preview surface — everything inside `.preview-surface` — consumes the live theme tokens (`--color-*`, `--*-font-family`). This keeps the tool readable while the canvas changes underneath it.
+- **One source of truth.** All theme state lives in a single `useReducer` in [`ThemeContext`](src/contexts/ThemeContext.jsx): a theme object, lock map, and immutable undo/redo stacks. Live drags update without spamming history; the gesture is folded into one undoable edit on release.
+- **Typed core, untyped views.** All the logic — colour maths, variant generation, the parser, the exporters, the audit — is strict TypeScript in [`src/lib/`](src/lib), with no DOM access, so Node can import it. Components stay JSX: types earn their keep on a five-role palette and a lock map, not on presentational markup.
+- **One grader.** [`auditPalette`](src/lib/audit.ts) is the only implementation of "does this pass", shared by the sidebar, the CLI and the MCP server. It grades what the DOM paints — button labels are measured against the derived `--on-primary`, not the palette's background slot, so it can't report a failure the user is unable to fix.
+
+📄 **[How it was built](docs/HOW_IT_WAS_BUILT.md)** — the longer version: why the chrome/canvas split exists, how the undo stack survives a color drag, and the unbounded loop that used to hang the tab.
+
+## Getting started
+
+**Prerequisites:** Node.js 20+ and npm.
 
 ```bash
 git clone https://github.com/Hashtagsmile/react-color-tester.git
 cd react-color-tester
+npm install
+npm run dev          # start the dev server (Vite, HMR)
 ```
 
-### 2. Running the Application
-To start the development server with Hot Module Replacement (HMR):
+Then open the local URL Vite prints (default `http://localhost:5173`).
+
 ```bash
-npm run dev
-```
-The application is served at http://localhost:5173 (Vite's default port).
-
-
-### Theme Provider
-The project utilizes a ThemeProvider with React’s createContext and useContext to manage and dynamically apply theme settings across the entire application.
-This approach centralizes theme data and avoids the need for "prop drilling" (repeatedly passing props down through component hierarchies).
-
-<br>
-The ThemeProvider wraps the main application component and exposes the theme state and functions to any child components via useContext.
-The code below illustrates how it can be used.
-
-```
-import { useContext } from "react";
-import { ThemeContext } from "./path/to/ThemeProvider";
-
-const MyComponent = () => {
-  const { primaryColor, toggleDarkMode, randomizeColors } = useContext(ThemeContext);
-
-  return (
-    <div style={{ backgroundColor: primaryColor }}>
-      <button onClick={toggleDarkMode}>Toggle Dark Mode</button>
-      <button onClick={randomizeColors}>Randomize Colors</button>
-    </div>
-  );
-};
+npm run build        # production build → dist/
+npm run build:node   # compile the shared core, CLI and MCP server → dist-node/
+npm run test         # Vitest — colour maths, parser, exporters, presets, MCP
+npm run typecheck    # tsc over src/lib, src/data, tests, bin, mcp
+npm run lint         # ESLint
 ```
 
-### Roadmap
-- [x] Demo website on vercel
-- [x] Browse through predefined themes and customize them to your own liking in real-time.
-- [ ] Fix the locking mechanism for individual colors
-- [ ] Extend the export to support more formats like wordpress and elementor
-- [ ] Be able to adjust the size of font header and font body and reflect this in the exporting of the theme
-- [ ] Implement general settings tab where the user can change paramters such as card sizes, border-radius, number of dashboard cards etc... to further enhance the customization.
-- [x] Fix the copy to clipboard
+## Tests
+
+`npm test` covers the parts where being wrong is silent: WCAG ratios against reference values, `encodeTheme`/`decodeTheme` round‑trips, the bounded contrast loop, parser behaviour across CSS / Tailwind / JSON, export→import round‑trips, and an end‑to‑end run of the MCP server over stdio.
+
+There's also a test asserting every bundled preset passes its own grader. It was worth writing: when first run, **9 of 11 light presets failed** — including the one named "High Contrast", whose amber accent sat at 1.92:1 on white.
+
+## Roadmap
+
+- [ ] Adjustable type scale (heading/body sizes) reflected in the export
+- [ ] More export targets (SCSS, design tokens / Style Dictionary)
+- [ ] Saveable palette gallery
+- [ ] Import a palette from an image
+
+## License
+
+[MIT](LICENSE)

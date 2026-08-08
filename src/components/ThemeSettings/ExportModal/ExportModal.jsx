@@ -1,121 +1,129 @@
-import { useContext, useState } from "react";
-import { ThemeContext } from "../../../contexts/ThemeContext";
-import chroma from "chroma-js";
+import { useCallback, useMemo, useState } from "react";
+import { LuCopy, LuCheck, LuX, LuDownload, LuSparkles } from "react-icons/lu";
+import { useTheme } from "../../../contexts/useTheme";
+import { predefinedThemes } from "../../../data/predefinedThemes";
+import { useModal } from "../../Modal/useModal";
 import "./ExportModal.css";
+import { EXPORTERS, generateVariant } from "../../../lib";
+
+const FORMATS = ["AI", "CSS", "Tailwind", "JSON"];
+const COLOR_FORMATS = ["HEX", "RGB", "HSL"];
 
 export const ExportModal = () => {
-  const { primaryColor, secondaryColor, accentColor, backgroundColor, textColor } = useContext(ThemeContext);
+  const { colors, fonts, isDarkMode, isCustom, themeName } = useTheme();
 
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("current");
-  const [activeFormat, setActiveFormat] = useState("HEX");
+  const [open, setOpen] = useState(false);
+  const [format, setFormat] = useState("AI");
+  const [colorFormat, setColorFormat] = useState("HEX");
+  const [bothModes, setBothModes] = useState(true);
+  const [copied, setCopied] = useState(false);
 
-  const convertColor = (color) => {
-    switch (activeFormat) {
-      case "RGB":
-        return chroma(color).css("rgb");
-      case "HSL":
-        return chroma(color).css("hsl");
-      default:
-        return color; // HEX by default
+  // Resolve a concrete light + dark palette for the current theme.
+  const { light, dark } = useMemo(() => {
+    if (!isCustom) {
+      const preset = predefinedThemes.find((t) => t.name === themeName);
+      if (preset) return { light: preset.light, dark: preset.dark };
     }
-  };
+    const other = generateVariant(colors, !isDarkMode);
+    return {
+      light: isDarkMode ? other : colors,
+      dark: isDarkMode ? colors : other,
+    };
+  }, [colors, isCustom, themeName, isDarkMode]);
 
-  // CSS for current theme mode (either dark or light mode)
-  const currentThemeExport = `
-    --primary-color: ${convertColor(primaryColor)};
-    --secondary-color: ${convertColor(secondaryColor)};
-    --accent-color: ${convertColor(accentColor)};
-    --background-color: ${convertColor(backgroundColor)};
-    --text-color: ${convertColor(textColor)};
-  `;
+  const output = useMemo(() => {
+    const current = isDarkMode ? dark : light;
+    return EXPORTERS[format](light, dark, fonts, { colorFormat, bothModes, current });
+  }, [format, colorFormat, bothModes, light, dark, isDarkMode, fonts]);
 
-  // CSS for both light and dark themes
-  const fullThemeExport = `
-:root[data-theme="light"] {
-  --primary-color: ${convertColor(primaryColor)};
-  --secondary-color: ${convertColor(secondaryColor)};
-  --accent-color: ${convertColor(accentColor)};
-  --background-color: ${convertColor(backgroundColor)};
-  --text-color: ${convertColor(textColor)};
-}
+  const close = useCallback(() => setOpen(false), []);
 
-:root[data-theme="dark"] {
-  --primary-color: ${convertColor(primaryColor)};
-  --secondary-color: ${convertColor(secondaryColor)};
-  --accent-color: ${convertColor(accentColor)};
-  --background-color: ${convertColor(backgroundColor)};
-  --text-color: ${convertColor(textColor)};
-}
-`;
+  // Scroll lock, Escape, focus trap and focus restore.
+  const dialogRef = useModal(open, close);
 
-  const copyToClipboard = (colorScheme) => {
-    navigator.clipboard.writeText(colorScheme);
-    alert("Copied to clipboard");
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(output);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard unavailable */
+    }
   };
 
   return (
     <>
-      <button className="export-theme-button" onClick={() => setModalOpen(true)}>
-        Export Theme
+      <button className="export-open-btn" onClick={() => setOpen(true)}>
+        <LuDownload /> Export theme
       </button>
 
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>Export Theme</h3>
-
-            {/* Tab navigation */}
-            <div className="tab-navigation">
-              <button
-                className={activeTab === "current" ? "active-tab" : ""}
-                onClick={() => setActiveTab("current")}
-              >
-                Current Theme
-              </button>
-              <button
-                className={activeTab === "both" ? "active-tab" : ""}
-                onClick={() => setActiveTab("both")}
-              >
-                Both Light & Dark
+      {open && (
+        <div className="export-overlay" onClick={close}>
+          <div
+            className="export-modal"
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="export-title"
+            tabIndex={-1}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="export-head">
+              <h3 id="export-title">Export theme</h3>
+              <button className="export-close" onClick={close} aria-label="Close">
+                <LuX />
               </button>
             </div>
 
-            {/* Format conversion chips */}
-            <div className="conversion-chips">
-              <button
-                className={activeFormat === "HEX" ? "active-chip" : ""}
-                onClick={() => setActiveFormat("HEX")}
-              >
-                HEX
-              </button>
-              <button
-                className={activeFormat === "RGB" ? "active-chip" : ""}
-                onClick={() => setActiveFormat("RGB")}
-              >
-                RGB
-              </button>
+            <div className="export-controls">
+              <div className="export-segment" role="tablist" aria-label="Format">
+                {FORMATS.map((f) => (
+                  <button
+                    key={f}
+                    className={`${format === f ? "on" : ""} ${f === "AI" ? "ai" : ""}`}
+                    onClick={() => setFormat(f)}
+                  >
+                    {f === "AI" && <LuSparkles />}
+                    {f === "AI" ? "AI prompt" : f}
+                  </button>
+                ))}
+              </div>
+
+              {format !== "AI" && (
+                <div className="export-segment small">
+                  {COLOR_FORMATS.map((f) => (
+                    <button key={f} className={colorFormat === f ? "on" : ""} onClick={() => setColorFormat(f)}>
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <label className="export-toggle">
+                <input type="checkbox" checked={bothModes} onChange={(e) => setBothModes(e.target.checked)} />
+                Light&nbsp;+&nbsp;dark
+              </label>
             </div>
 
-            {/* Tab content */}
-            <div className="tab-content">
-              {activeTab === "current" && <pre>{currentThemeExport}</pre>}
-              {activeTab === "both" && <pre>{fullThemeExport}</pre>}
-            </div>
+            {format === "AI" && (
+              <p className="export-note">
+                <LuSparkles /> Paste straight into Cursor, Claude Code, Copilot or v0 — a labelled
+                palette with contrast ratios and ready-to-use tokens.
+              </p>
+            )}
 
-            {/* Buttons */}
-            <div className="modal-buttons">
-              <button
-                onClick={() =>
-                  copyToClipboard(
-                    activeTab === "current" ? currentThemeExport : fullThemeExport
-                  )
-                }
-              >
-                Copy to Clipboard
-              </button>
-              <button onClick={() => setModalOpen(false)}>Close</button>
-            </div>
+            <pre className="export-code">{output}</pre>
+
+            {/* Long lines scroll sideways on a phone with no visible scrollbar,
+                which reads as truncation. Say so — copying takes it all anyway. */}
+            <p className="export-scroll-hint">
+              Long lines run off the edge — swipe the code sideways, or just copy it.
+            </p>
+
+            <button className="export-copy-btn" onClick={handleCopy}>
+              {copied ? <LuCheck /> : <LuCopy />}
+              {copied ? "Copied to clipboard" : "Copy code"}
+            </button>
           </div>
         </div>
       )}

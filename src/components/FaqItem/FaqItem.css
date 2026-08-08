@@ -1,47 +1,75 @@
-.faq-item {
-    border-bottom: 1px solid #ccc;
-    padding: 10px 0;
-    margin-bottom: 10px;
-    width: 100%;
-  }
-  
-  .faq-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-  }
-  
-  .faq-title h3 {
-    color: var(--color-text);
-    font-size: 1rem;
-    margin: 0;
-  }
-  
-  .toggle-icon {
-    font-size: 24px;
-    margin-left: 20px;
-    transition: transform 0.5s ease;
-  }
-  
-  /* Content hidden by default */
-  .faq-content {
-    text-align: left;
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-    padding: 0;
-    transition: max-height 0.5s ease, opacity 0.5s ease, padding 0.5s ease;
-  }
-  
-  /* When content is expanded */
-  .faq-item.expanded .faq-content {
-    max-height: 500px; /* Adjust depending on expected content height */
-    opacity: 1;
-    padding: 10px 0;
-  }
-  
-  .faq-item.expanded .toggle-icon {
-    transform: rotate(-180deg); /* Rotate the toggle icon when expanded */
-  }
-  
+/* FAQ item — scoped under .page-landing so nothing leaks to chrome.
+   Lives inside a bordered .faq-container card; items divide with a
+   hairline and never draw a border on the last row. */
+
+.page-landing .faq-item {
+  border-bottom: 1px solid var(--nw-hairline);
+  width: 100%;
+}
+
+.page-landing .faq-item:last-child {
+  border-bottom: none;
+}
+
+.page-landing .faq-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.page-landing .faq-title h3 {
+  font-family: var(--header-font-family);
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-align: left;
+}
+
+.page-landing .toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--color-primary);
+  background: var(--nw-primary-tint);
+  transition: transform 0.35s ease, background 0.2s ease;
+}
+
+.page-landing .faq-title:hover .toggle-icon {
+  background: color-mix(in srgb, var(--color-primary) 20%, var(--color-background));
+}
+
+/* Content hidden by default */
+.page-landing .faq-content {
+  font-family: var(--body-font-family);
+  color: var(--nw-muted);
+  opacity: 0;
+  text-align: left;
+  overflow: hidden;
+  max-height: 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  padding: 0;
+  transition: max-height 0.4s ease, opacity 0.4s ease, padding 0.4s ease;
+}
+
+/* When content is expanded */
+.page-landing .faq-item.expanded .faq-content {
+  max-height: 500px;
+  opacity: 1;
+  padding: 0 44px 22px 0;
+}
+
+.page-landing .faq-item.expanded .toggle-icon {
+  transform: rotate(-180deg);
+}

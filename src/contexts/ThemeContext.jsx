@@ -1,462 +1,311 @@
-import { createContext, useState, useEffect } from "react";
-import { getCSSVariableValue } from "../utilities/utilities";
-import { predefinedThemes, predefinedFonts } from "../data/predefinedThemes";
-import chroma from "chroma-js";
+import { createContext, useEffect, useReducer } from "react";
+import { predefinedFonts, predefinedThemes } from "../data/predefinedThemes";
+import {
+  COLOR_KEYS,
+  decodeTheme,
+  encodeTheme,
+  generateVariant,
+  randomColors,
+  randomFonts,
+  readableTextColor,
+} from "../lib";
 
-export const ThemeContext = createContext();
+export const ThemeContext = createContext(null);
+
+const STORAGE_KEY = "theme-lab:v2";
+const HISTORY_LIMIT = 50;
+const DEFAULT_THEME = predefinedThemes[0];
+
+const defaultLocks = COLOR_KEYS.reduce((acc, k) => ({ ...acc, [k]: false }), {});
+
+/* ------------------------------------------------------------------ */
+/*  Reducer                                                            */
+/* ------------------------------------------------------------------ */
+
+// The slice of state that undo/redo restores.
+const snapshot = (s) => ({
+  colors: s.colors,
+  fonts: s.fonts,
+  themeName: s.themeName,
+  isCustom: s.isCustom,
+  locked: s.locked,
+});
+
+// Apply `changes` while recording the pre-change state onto the undo stack.
+const withHistory = (state, changes) => ({
+  ...state,
+  ...changes,
+  past: [...state.past, snapshot(state)].slice(-HISTORY_LIMIT),
+  future: [],
+  checkpoint: null,
+});
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "APPLY_PREDEFINED": {
+      const theme = predefinedThemes.find((t) => t.name === action.name);
+      if (!theme) return state;
+      return withHistory(state, {
+        colors: theme[state.isDarkMode ? "dark" : "light"],
+        fonts: { header: theme.headerFont, body: theme.bodyFont },
+        themeName: theme.name,
+        isCustom: false,
+      });
+    }
+
+    // Live drag: update the swatch without spamming the undo stack, but stash a
+    // one-time checkpoint of where we started so the eventual commit is undoable.
+    case "PREVIEW_COLOR":
+      return {
+        ...state,
+        colors: { ...state.colors, [action.key]: action.value },
+        isCustom: true,
+        themeName: "Custom",
+        checkpoint: state.checkpoint ?? snapshot(state),
+      };
+
+    // Pointer released / picker closed: fold the whole gesture into one history entry.
+    case "COMMIT_COLOR": {
+      const checkpoint = state.checkpoint ?? snapshot(state);
+      return {
+        ...state,
+        colors: { ...state.colors, [action.key]: action.value },
+        isCustom: true,
+        themeName: "Custom",
+        past: [...state.past, checkpoint].slice(-HISTORY_LIMIT),
+        future: [],
+        checkpoint: null,
+      };
+    }
+
+    case "SET_FONT":
+      return withHistory(state, {
+        fonts: { ...state.fonts, [action.slot]: action.value },
+      });
+
+    case "RANDOMIZE_COLORS":
+      return withHistory(state, {
+        colors: randomColors(state.locked, state.colors, state.isDarkMode),
+        isCustom: true,
+        themeName: "Custom",
+      });
+
+    case "RANDOMIZE_FONTS":
+      return withHistory(state, { fonts: randomFonts(predefinedFonts) });
+
+    // Locks are a meta-setting, not a theme value — deliberately not on the undo stack.
+    case "TOGGLE_LOCK":
+      return {
+        ...state,
+        locked: { ...state.locked, [action.key]: !state.locked[action.key] },
+      };
+
+    case "TOGGLE_DARK": {
+      const isDarkMode = !state.isDarkMode;
+      let colors;
+      if (state.isCustom) {
+        colors = generateVariant(state.colors, isDarkMode);
+      } else {
+        const theme = predefinedThemes.find((t) => t.name === state.themeName);
+        colors = theme ? theme[isDarkMode ? "dark" : "light"] : state.colors;
+      }
+      return { ...state, isDarkMode, colors };
+    }
+
+    case "UNDO": {
+      if (!state.past.length) return state;
+      const previous = state.past[state.past.length - 1];
+      return {
+        ...state,
+        ...previous,
+        past: state.past.slice(0, -1),
+        future: [snapshot(state), ...state.future].slice(0, HISTORY_LIMIT),
+        checkpoint: null,
+      };
+    }
+
+    case "REDO": {
+      if (!state.future.length) return state;
+      const next = state.future[0];
+      return {
+        ...state,
+        ...next,
+        past: [...state.past, snapshot(state)].slice(-HISTORY_LIMIT),
+        future: state.future.slice(1),
+        checkpoint: null,
+      };
+    }
+
+    // Tokens pasted in from outside (an AI assistant, an existing codebase).
+    // Undoable like any other edit, so it's safe to try one and step back.
+    case "IMPORT_THEME":
+      return withHistory(state, {
+        colors: action.colors,
+        fonts: action.fonts ?? state.fonts,
+        themeName: "Imported",
+        isCustom: true,
+      });
+
+    case "RESET":
+      return {
+        ...state,
+        colors: DEFAULT_THEME[state.isDarkMode ? "dark" : "light"],
+        fonts: { header: DEFAULT_THEME.headerFont, body: DEFAULT_THEME.bodyFont },
+        themeName: DEFAULT_THEME.name,
+        isCustom: false,
+        locked: defaultLocks,
+        past: [],
+        future: [],
+        checkpoint: null,
+      };
+
+    default:
+      return state;
+  }
+};
+
+/* ------------------------------------------------------------------ */
+/*  Initial state — URL share > localStorage > system preference      */
+/* ------------------------------------------------------------------ */
+
+const buildInitialState = () => {
+  const base = {
+    colors: DEFAULT_THEME.light,
+    fonts: { header: DEFAULT_THEME.headerFont, body: DEFAULT_THEME.bodyFont },
+    themeName: DEFAULT_THEME.name,
+    isCustom: false,
+    isDarkMode: false,
+    locked: defaultLocks,
+    past: [],
+    future: [],
+    checkpoint: null,
+  };
+
+  // 1. A shared theme in the URL wins so links reproduce exactly.
+  const shared = new URLSearchParams(window.location.search).get("theme");
+  if (shared) {
+    const decoded = decodeTheme(shared);
+    if (decoded) {
+      return {
+        ...base,
+        colors: decoded.colors,
+        fonts: decoded.fonts,
+        isDarkMode: decoded.isDarkMode,
+        themeName: "Custom",
+        isCustom: true,
+      };
+    }
+  }
+
+  // 2. Restore the user's last session.
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (saved?.colors && saved?.fonts) {
+      return { ...base, ...saved, past: [], future: [], checkpoint: null };
+    }
+  } catch {
+    /* ignore corrupt storage */
+  }
+
+  // 3. First visit — honour the OS light/dark preference.
+  const prefersDark =
+    window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+  return {
+    ...base,
+    isDarkMode: prefersDark,
+    colors: DEFAULT_THEME[prefersDark ? "dark" : "light"],
+  };
+};
+
+/* ------------------------------------------------------------------ */
+/*  Provider                                                           */
+/* ------------------------------------------------------------------ */
 
 export const ThemeProvider = ({ children }) => {
-  const defaultTheme = predefinedThemes[0];
-  const [currentTheme, setCurrentTheme] = useState(defaultTheme);
-  const [themeHistory, setThemeHistory] = useState([]); // History for undo
-  const [redoStack, setRedoStack] = useState([]); // History for redo
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [state, dispatch] = useReducer(reducer, undefined, buildInitialState);
+  const { colors, fonts, isDarkMode } = state;
 
-  const [primaryColor, setPrimaryColor] = useState(
-    getCSSVariableValue("--color-primary")
-  );
-  const [backgroundColor, setBackgroundColor] = useState(
-    getCSSVariableValue("--color-background")
-  );
-  const [textColor, setTextColor] = useState(
-    getCSSVariableValue("--color-text")
-  );
-  const [accentColor, setAccentColor] = useState(
-    getCSSVariableValue("--color-accent")
-  );
-  const [secondaryColor, setSecondaryColor] = useState(
-    getCSSVariableValue("--color-secondary")
-  );
-
-  // Separate states for header and body fonts
-  const [headerFont, setHeaderFont] = useState("Arial");
-  const [bodyFont, setBodyFont] = useState("Arial");
-
-  const defaultLockState = {
-    primaryColor: false,
-    secondaryColor: false,
-    accentColor: false,
-    backgroundColor: false,
-    textColor: false,
-  };
-  const [lockedColors, setLockedColors] = useState(defaultLockState);
-
-  const toggleLockColor = (colorType) => {
-    setLockedColors((prevLocks) => {
-      const newLocks = {
-        ...prevLocks,
-        [colorType]: !prevLocks[colorType], // Toggle the lock state
-      };
-
-      // Update theme history with the new lock state
-      setThemeHistory((prev) => [
-        ...prev,
-        {
-          primaryColor,
-          secondaryColor,
-          accentColor,
-          backgroundColor,
-          textColor,
-          headerFont,
-          bodyFont,
-          lockedColors: newLocks, // Save the new lock state
-        },
-      ]);
-
-      return newLocks;
-    });
-  };
-
-  const applyTheme = (theme, mode = isDarkMode) => {
-    const selectedTheme = predefinedThemes.find((t) => t.name === theme.name);
-    
-    console.log("Is theme custom: ", theme.isCustom);
-    if (selectedTheme && !theme.isCustom) {
-      console.log("It is predefined")
-      // For predefined themes
-      const themeToApply =
-        selectedTheme[mode ? "dark" : "light"] || selectedTheme;
-
-      setCurrentTheme(selectedTheme);
-      setPrimaryColor(themeToApply.primaryColor);
-      setBackgroundColor(themeToApply.backgroundColor);
-      setTextColor(themeToApply.textColor);
-      setAccentColor(themeToApply.accentColor);
-      setSecondaryColor(themeToApply.secondaryColor);
-      setHeaderFont(selectedTheme.headerFont || "Arial"); // Add headerFont
-      setBodyFont(selectedTheme.bodyFont || "Arial");
-    } else {
-      // Custom theme logic
-      const customTheme = {
-        ...theme,
-        name: "Custom Theme",
-        isCustom: true, // Mark the theme as custom
-        light: generateDarkOrLightCustomTheme(theme, false),
-        dark: generateDarkOrLightCustomTheme(theme, true),
-      };
-
-      console.log("custom Theme in applyTheme: ", customTheme)
-
-      const themeToApply = mode ? customTheme.dark : customTheme.light;
-
-      setCurrentTheme(customTheme);
-      setPrimaryColor(themeToApply.primaryColor);
-      setBackgroundColor(themeToApply.backgroundColor);
-      setTextColor(themeToApply.textColor);
-      setAccentColor(themeToApply.accentColor);
-      setSecondaryColor(themeToApply.secondaryColor);
-      setHeaderFont(customTheme.headerFont || "Arial");
-      setBodyFont(customTheme.bodyFont || "Arial");
-    }
-
-    // Update theme history
-    setThemeHistory((prev) => [
-      ...prev,
-      {
-        primaryColor,
-        secondaryColor,
-        accentColor,
-        backgroundColor,
-        textColor,
-        headerFont,
-        bodyFont,
-        lockedColors,
-      },
-    ]);
-
-    setRedoStack([]); // Clear redo stack
-  };
-
-  // Function to dynamically generate light/dark mode variants for custom themes
-  const generateDarkOrLightCustomTheme = (theme, mode) => {
-    // Adjust the background color to be a very light/dark version of the primary color
-    const adjustBackgroundFromPrimary = (primaryColor) =>
-      mode
-        ? chroma(primaryColor).darken(4).desaturate(0.7).hex() // Very dark shade for dark mode
-        : chroma(primaryColor).brighten(4).saturate(0.8).hex(); // Very light shade for light mode
-
-    // Set the background color based on the primary color
-    const backgroundColor = adjustBackgroundFromPrimary(theme.primaryColor);
-
-    // Function to adjust secondary and accent colors with enhanced contrast check
-    const adjustForContrast = (
-      color,
-      background,
-      minContrast = 4.5,
-      hueShift = 0
-    ) => {
-      let adjustedColor = color;
-
-      // Adjust brightness based on mode
-      adjustedColor = mode
-        ? chroma(adjustedColor).darken(2).desaturate(0.4) // Darken for dark mode
-        : chroma(adjustedColor).brighten(2).saturate(0.6); // Brighten for light mode
-
-      // Shift the hue to ensure variation between colors
-      adjustedColor = adjustedColor.set("hsl.h", `+${hueShift}`);
-
-      // Adjust the color until it meets the minimum contrast requirement
-      while (chroma.contrast(adjustedColor, background) < minContrast) {
-        adjustedColor = mode
-          ? adjustedColor.brighten(0.5)
-          : adjustedColor.darken(0.5);
-      }
-
-      return adjustedColor.hex();
-    };
-
-    // Primary color remains the same across light and dark modes
-    const primaryColor = theme.primaryColor;
-
-    // Adjust secondary and accent colors with contrast check
-    const secondaryColor = adjustForContrast(
-      theme.secondaryColor,
-      backgroundColor,
-      4.5,
-      20
-    ); // Secondary with a hue shift
-    const accentColor = adjustForContrast(
-      theme.accentColor,
-      backgroundColor,
-      4.5,
-      30
-    ); // Accent with a larger hue shift
-
-    // Adjust text color to be a darker/lighter shade of the primary color based on mode
-    const textColor = mode
-      ? chroma(primaryColor).brighten(3).desaturate(0.4).hex() // Light shade for dark mode
-      : chroma(primaryColor).darken(3).desaturate(0.6).hex(); // Dark shade for light mode
-
-    return {
-      ...theme,
-      primaryColor,
-      secondaryColor,
-      accentColor,
-      backgroundColor,
-      textColor,
-    };
-  };
-
-  const handleColorDrag = (colorType, newColor) => {
-    switch (colorType) {
-      case "primaryColor":
-        setPrimaryColor(newColor);
-        break;
-      case "backgroundColor":
-        setBackgroundColor(newColor);
-        break;
-      case "textColor":
-        setTextColor(newColor);
-        break;
-      case "secondaryColor":
-        setSecondaryColor(newColor);
-        break;
-      case "accentColor":
-        setAccentColor(newColor);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleColorChangeFinal = (colorType, newColor, mode = isDarkMode) => {
-    // If modifying a predefined theme, switch to custom mode
-    const newTheme = {
-      ...currentTheme,
-      isCustom: true, // Mark it as a custom theme
-      [colorType]: newColor || currentTheme[colorType], // Fallback to the current color if undefined
-    };
-
-    console.log("HandleColroChangeFinal")
-    console.log("New Theme: ")
-    console.log(newTheme)
-
-    // Apply the theme using the centralized applyTheme function
-    applyTheme(newTheme, mode);
-  };
-
-  const randomizeColors = () => {
-    const baseColor = chroma.random();
-    const colorScale = chroma.scale([
-      baseColor,
-      baseColor.set("hsl.h", "+120"),
-    ]);
-
-    const newPrimaryColor = lockedColors.primaryColor
-      ? primaryColor
-      : colorScale(0.3).hex();
-    const newSecondaryColor = lockedColors.secondaryColor
-      ? secondaryColor
-      : colorScale(0.5).hex();
-    const newAccentColor = lockedColors.accentColor
-      ? accentColor
-      : baseColor.set("hsl.h", "+60").hex();
-
-    // Darken or lighten the background, keeping the base color's hue
-    const newBackgroundColor = lockedColors.backgroundColor
-      ? backgroundColor
-      : isDarkMode
-      ? chroma(baseColor).darken(1.5).desaturate(0.5).hex() // Darken slightly for dark mode
-      : chroma(baseColor).brighten(1.5).saturate(0.5).hex(); // Lighten slightly for light mode
-
-    const newTextColor = lockedColors.textColor
-      ? textColor
-      : chroma.contrast(newBackgroundColor, "#fff") > 4.5
-      ? "#fff"
-      : "#333";
-
-    applyTheme({
-      primaryColor: newPrimaryColor,
-      secondaryColor: newSecondaryColor,
-      accentColor: newAccentColor,
-      backgroundColor: newBackgroundColor,
-      textColor: newTextColor,
-      headerFont, // Ensure fonts remain unchanged unless explicitly set
-      bodyFont,
-    });
-  };
-
-  const undoTheme = () => {
-    if (themeHistory.length > 0) {
-      const lastTheme = themeHistory.pop();
-      setThemeHistory([...themeHistory]); // update history after popping latest one
-
-      console.log("lastTheme history: " + JSON.stringify(lastTheme, null, 2));
-
-      setRedoStack((prev) => [
-        ...prev,
-        {
-          primaryColor,
-          secondaryColor,
-          accentColor,
-          backgroundColor,
-          textColor,
-          headerFont,
-          bodyFont,
-          lockedColors,
-        },
-      ]);
-
-      // Restore the previous theme and lock state
-      setPrimaryColor(lastTheme.primaryColor);
-      setBackgroundColor(lastTheme.backgroundColor);
-      setTextColor(lastTheme.textColor);
-      setAccentColor(lastTheme.accentColor);
-      setSecondaryColor(lastTheme.secondaryColor);
-      setBodyFont(lastTheme.bodyFont);
-      setHeaderFont(lastTheme.headerFont);
-      setLockedColors(lastTheme.lockedColors);
-    }
-  };
-
-  const redoTheme = () => {
-    if (redoStack.length > 0) {
-      const lastRedo = redoStack.pop();
-      setRedoStack([...redoStack]); // Update the redo stack after removing the last one
-
-      setThemeHistory((prev) => [
-        ...prev,
-        {
-          primaryColor,
-          secondaryColor,
-          accentColor,
-          backgroundColor,
-          textColor,
-          headerFont,
-          bodyFont,
-          lockedColors,
-        },
-      ]);
-
-      setPrimaryColor(lastRedo.primaryColor);
-      setBackgroundColor(lastRedo.backgroundColor);
-      setTextColor(lastRedo.textColor);
-      setAccentColor(lastRedo.accentColor);
-      setSecondaryColor(lastRedo.secondaryColor);
-      setBodyFont(lastRedo.bodyFont);
-      setHeaderFont(lastRedo.headerFont);
-      setLockedColors(lastRedo.lockedColors);
-    }
-  };
-
+  // Push colors + fonts to CSS custom properties whenever they change.
   useEffect(() => {
-    // Check the user's system preference for dark mode
-    const prefersDarkMode =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const root = document.documentElement;
+    root.style.setProperty("--color-primary", colors.primary);
+    root.style.setProperty("--color-secondary", colors.secondary);
+    root.style.setProperty("--color-accent", colors.accent);
+    root.style.setProperty("--color-background", colors.background);
+    root.style.setProperty("--color-text", colors.text);
 
-    console.log("PrefersDarkMode ", prefersDarkMode);
+    // Foregrounds for anything painted ON a brand color. Surfaces used to just
+    // reuse --color-background here, which silently fails whenever background
+    // and primary are both light (or both dark).
+    root.style.setProperty("--on-primary", readableTextColor(colors.primary));
+    root.style.setProperty("--on-accent", readableTextColor(colors.accent));
 
-    // Set the initial dark mode state based on the system preference
-    setIsDarkMode(prefersDarkMode);
+    root.style.setProperty("--header-font-family", `"${fonts.header}", system-ui, sans-serif`);
+    root.style.setProperty("--body-font-family", `"${fonts.body}", system-ui, sans-serif`);
+    root.setAttribute("data-theme", isDarkMode ? "dark" : "light");
+  }, [colors, fonts, isDarkMode]);
 
-    prefersDarkMode ? document.documentElement.setAttribute("data-theme", "dark") :  document.documentElement.setAttribute("data-theme", "light");
-
-    // Apply the default theme with the correct mode (dark or light)
-    applyTheme(defaultTheme, prefersDarkMode);
-
-    // Clear the theme history (if needed)
-    setThemeHistory([]);
-  }, []);
-
+  // Persist the editable state (never the history) for the next session.
   useEffect(() => {
-    // Update CSS variables whenever theme colors or font change
-    document.documentElement.style.setProperty("--color-primary", primaryColor);
-    document.documentElement.style.setProperty(
-      "--color-background",
-      backgroundColor
-    );
-    document.documentElement.style.setProperty("--color-text", textColor);
-    document.documentElement.style.setProperty("--color-accent", accentColor);
-    document.documentElement.style.setProperty(
-      "--color-secondary",
-      secondaryColor
-    );
-    document.documentElement.style.setProperty(
-      "--header-font-family",
-      headerFont
-    ); // Set header font CSS variable
-    document.documentElement.style.setProperty("--body-font-family", bodyFont);
-  }, [
-    primaryColor,
-    secondaryColor,
-    accentColor,
-    backgroundColor,
-    textColor,
-    headerFont,
-    bodyFont,
-  ]);
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          colors: state.colors,
+          fonts: state.fonts,
+          themeName: state.themeName,
+          isCustom: state.isCustom,
+          isDarkMode: state.isDarkMode,
+          locked: state.locked,
+        })
+      );
+    } catch {
+      /* storage full / unavailable — non-fatal */
+    }
+  }, [state.colors, state.fonts, state.themeName, state.isCustom, state.isDarkMode, state.locked]);
 
-  const resetTheme = () => {
-    setCurrentTheme(defaultTheme);
-    applyTheme(defaultTheme);
-    setThemeHistory([]);
-    setLockedColors(defaultLockState);
-    setRedoStack([]);
+  const value = {
+    // state
+    colors,
+    fonts,
+    themeName: state.themeName,
+    isCustom: state.isCustom,
+    isDarkMode,
+    locked: state.locked,
+    canUndo: state.past.length > 0,
+    canRedo: state.future.length > 0,
+    editCount: state.past.length,
+
+    // convenience flatteners (kept so simple consumers stay readable)
+    primaryColor: colors.primary,
+    secondaryColor: colors.secondary,
+    accentColor: colors.accent,
+    backgroundColor: colors.background,
+    textColor: colors.text,
+    headerFont: fonts.header,
+    bodyFont: fonts.body,
+
+    // actions
+    applyPredefined: (name) => dispatch({ type: "APPLY_PREDEFINED", name }),
+    previewColor: (key, value) => dispatch({ type: "PREVIEW_COLOR", key, value }),
+    commitColor: (key, value) => dispatch({ type: "COMMIT_COLOR", key, value }),
+    setFont: (slot, value) => dispatch({ type: "SET_FONT", slot, value }),
+    randomizeColors: () => dispatch({ type: "RANDOMIZE_COLORS" }),
+    randomizeFonts: () => dispatch({ type: "RANDOMIZE_FONTS" }),
+    toggleLock: (key) => dispatch({ type: "TOGGLE_LOCK", key }),
+    toggleDarkMode: () => dispatch({ type: "TOGGLE_DARK" }),
+    undo: () => dispatch({ type: "UNDO" }),
+    redo: () => dispatch({ type: "REDO" }),
+    reset: () => dispatch({ type: "RESET" }),
+    importTheme: (importedColors, importedFonts) =>
+      dispatch({ type: "IMPORT_THEME", colors: importedColors, fonts: importedFonts }),
+
+    // shareable deep link
+    shareUrl: () => {
+      const { origin, pathname } = window.location;
+      return `${origin}${pathname}?theme=${encodeTheme(colors, fonts, isDarkMode)}`;
+    },
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode((prevMode) => {
-      const newMode = !prevMode;
-
-      // Apply the current theme, but with the updated dark mode
-      applyTheme(currentTheme, newMode);
-
-      // Set the data-theme attribute based on the new mode
-      if (newMode) {
-        document.documentElement.setAttribute("data-theme", "dark");
-      } else {
-        document.documentElement.setAttribute("data-theme", "light");
-      }
-
-      return newMode;
-    });
-  };
-
-  const randomizeFont = () => {
-    const randomHeaderFont =
-      predefinedFonts[Math.floor(Math.random() * predefinedFonts.length)];
-    const randomBodyFont =
-      predefinedFonts[Math.floor(Math.random() * predefinedFonts.length)];
-    setHeaderFont(randomHeaderFont);
-    setBodyFont(randomBodyFont);
-  };
-
-  return (
-    <ThemeContext.Provider
-      value={{
-        primaryColor,
-        setPrimaryColor,
-        backgroundColor,
-        setBackgroundColor,
-        textColor,
-        setTextColor,
-        accentColor,
-        setAccentColor,
-        secondaryColor,
-        setSecondaryColor,
-        currentTheme,
-        applyTheme,
-        undoTheme,
-        redoTheme,
-        resetTheme,
-        themeHistory,
-        redoStack,
-        isDarkMode,
-        toggleDarkMode,
-        randomizeFont,
-        handleColorDrag,
-        handleColorChangeFinal,
-        randomizeColors,
-        lockedColors,
-        toggleLockColor,
-        setBodyFont,
-        bodyFont,
-        setHeaderFont,
-        headerFont,
-      }}
-    >
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

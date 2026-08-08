@@ -1,74 +1,63 @@
-import { useContext, useState } from "react";
-import { ThemeContext } from "../../../contexts/ThemeContext";
-import { CiUnlock, CiLock } from "react-icons/ci";
-import { LuCopy } from "react-icons/lu";
+import { useState } from "react";
+import { CiLock, CiUnlock } from "react-icons/ci";
+import { LuCopy, LuCheck } from "react-icons/lu";
+import { useTheme } from "../../../contexts/useTheme";
 import "./ColorPicker.css";
 
-export const ColorPicker = ({ colorType, label, color }) => {
-  const {
-    handleColorChangeFinal,
-    toggleLockColor,
-    lockedColors,
-    handleColorDrag,
-  } = useContext(ThemeContext);
-  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+export const ColorPicker = ({ colorKey, label, color }) => {
+  const { previewColor, commitColor, toggleLock, locked } = useTheme();
+  const [copied, setCopied] = useState(false);
 
-  const handleColorChange = (e) => {
-    handleColorDrag(colorType, e.target.value);
-    setIsColorPickerOpen(false); // Close after the change
-  };
+  const isLocked = locked[colorKey];
 
-  // Handle mouse up only if the color picker was opened
-  const handleMouseUp = (e) => {
-    if (isColorPickerOpen) {
-      handleColorChangeFinal(colorType, e.target.value);
-      setIsColorPickerOpen(false); // Reset the state after handling
-    }
-  };
-
-  const handleCopyColor = (color) => {
+  const handleCopy = async () => {
     try {
-      navigator.clipboard.writeText(color);
-      console.log("Color copied: ", color);
-    } catch (error) {
-      console.error("Could not copy color: ", error);
+      await navigator.clipboard.writeText(color);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      /* clipboard unavailable */
     }
   };
 
   return (
-    <div className="color-picker">
-      <label className="color-label">{label}</label>
-      <div className="color-actions">
-        <div className="colpic-container">
-          <div className="colpic-wrapper">
-            <input
-              type="color"
-              value={color}
-              onClick={() => {
-                setIsColorPickerOpen(true);
-              }}
-              onChange={(e) => handleColorChange(e)}
-              onMouseUp={(e) => handleMouseUp(e)}
-              className="color-picker"
-            />
-          </div>
-          <div className="hex-color"> {color} </div>
-        </div>
+    <div className={`color-picker ${isLocked ? "locked" : ""}`}>
+      <div className="color-swatch-wrap">
+        <input
+          type="color"
+          value={color}
+          aria-label={`${label} color`}
+          className="color-input"
+          onInput={(e) => previewColor(colorKey, e.target.value)}
+          onChange={(e) => commitColor(colorKey, e.target.value)}
+        />
+      </div>
 
-        <div className="copy-lock-container">
-          <button
-            className="action-button"
-            onClick={() => toggleLockColor(colorType)}
-          >
-            {lockedColors[colorType] ? <CiUnlock /> : <CiLock />}
-          </button>
-          <button
-            className="action-button"
-            onClick={() => handleCopyColor(color)}
-          >
-            <LuCopy />
-          </button>
-        </div>
+      <div className="color-meta">
+        <span className="color-label">{label}</span>
+        <span className="color-hex">{color.toUpperCase()}</span>
+      </div>
+
+      <div className="color-actions">
+        <button
+          type="button"
+          className={`swatch-btn ${isLocked ? "on" : ""}`}
+          onClick={() => toggleLock(colorKey)}
+          aria-pressed={isLocked}
+          aria-label={isLocked ? `Unlock ${label}` : `Lock ${label}`}
+          title={isLocked ? "Locked — won't change on randomize" : "Lock this color"}
+        >
+          {isLocked ? <CiLock /> : <CiUnlock />}
+        </button>
+        <button
+          type="button"
+          className="swatch-btn"
+          onClick={handleCopy}
+          aria-label={`Copy ${label} hex`}
+          title="Copy hex"
+        >
+          {copied ? <LuCheck className="copied-tick" /> : <LuCopy />}
+        </button>
       </div>
     </div>
   );
