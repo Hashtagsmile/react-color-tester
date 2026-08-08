@@ -29,20 +29,35 @@ const MARGIN = 1.08;
  * `target` against `background`. Bounded, for the same reason `generateVariant`
  * is: a colour that clamps at black or white never converges.
  */
+/**
+ * Walk a colour one way until it clears `target` against `background`.
+ *
+ * Exposed separately because direction sometimes matters more than distance:
+ * white text failing on a mid-blue button can be "fixed" by turning the text
+ * black, which technically passes and destroys the design.
+ */
+export const nudgeDirectional = (
+  color: string,
+  background: string,
+  target: number,
+  darken: boolean,
+): string => {
+  if (!chroma.valid(color) || !chroma.valid(background)) return color;
+
+  let c = chroma(color);
+  let guard = 0;
+  while (chroma.contrast(c, background) < target && guard < 80) {
+    c = darken ? c.darken(0.08) : c.brighten(0.08);
+    guard += 1;
+  }
+  return c.hex();
+};
+
 export const nudgeToContrast = (color: string, background: string, target: number): string => {
   if (!chroma.valid(color) || !chroma.valid(background)) return color;
   if (contrastRatio(color, background) >= target) return color;
 
-  // Walk in one direction until the target is met or the colour stops moving.
-  const walk = (darken: boolean): string => {
-    let c = chroma(color);
-    let guard = 0;
-    while (chroma.contrast(c, background) < target && guard < 80) {
-      c = darken ? c.darken(0.08) : c.brighten(0.08);
-      guard += 1;
-    }
-    return c.hex();
-  };
+  const walk = (darken: boolean): string => nudgeDirectional(color, background, target, darken);
 
   // Try both directions rather than picking one from the background's
   // luminance. Against a mid-luminance background, lightening can cap out below

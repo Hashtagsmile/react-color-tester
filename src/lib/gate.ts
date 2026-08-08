@@ -1,5 +1,6 @@
+import chroma from "chroma-js";
 import { contrastRatio } from "./color.js";
-import { nudgeToContrast } from "./remediate.js";
+import { nudgeDirectional } from "./remediate.js";
 import type { TokenAuditRow } from "./audit.js";
 import type { TokenMap } from "./discover.js";
 
@@ -81,26 +82,40 @@ export interface PairSuggestion {
 /**
  * The smallest change that clears a failing pairing.
  *
- * Moves the foreground: it's the text, and shifting a shared surface ripples
- * through every other pairing measured against it. Returns null when the token
- * can't reach the threshold at all, rather than suggesting a change that
- * doesn't actually fix anything.
+ * Prefers moving the text — shifting a shared surface ripples through every
+ * other pairing measured against it. But the move has to preserve the design's
+ * polarity, so when the text is already pure white or black the surface moves
+ * instead. Returns null rather than proposing something that doesn't actually
+ * clear the threshold.
  */
 export const suggestPairFix = (
   tokens: TokenMap,
   row: TokenAuditRow,
   level: "AA" | "AAA" = "AA",
 ): PairSuggestion | null => {
-  const target = requiredRatio(row.large, level);
-  const from = tokens[row.foreground];
+  const target = requiredRatio(row.large, level) * 1.02;
+  const foreground = tokens[row.foreground];
   const background = tokens[row.background];
-  if (!from || !background) return null;
+  if (!foreground || !background) return null;
 
-  const to = nudgeToContrast(from, background, target * 1.02);
-  if (to === from) return null;
+  // Keep the design's polarity. If the text is lighter than its surface it has
+  // to stay lighter — "fixing" white text on a mid-blue button by turning the
+  // text black passes the check and destroys the button.
+  const lightText = chroma(foreground).luminance() > chroma(background).luminance();
 
-  const ratio = contrastRatio(to, background);
-  if (ratio < target) return null;
+  const nudgedText = nudgeDirectional(foreground, background, target, !lightText);
+  const textRatio = contrastRatio(nudgedText, background);
+  if (textRatio >= target && nudgedText !== foreground) {
+    return { token: row.foreground, from: foreground, to: nudgedText, ratio: textRatio };
+  }
 
-  return { token: row.foreground, from, to, ratio };
+  // The text can't move far enough without inverting — usually because it's
+  // already pure white or black. Move the surface instead.
+  const nudgedSurface = nudgeDirectional(background, foreground, target, lightText);
+  const surfaceRatio = contrastRatio(foreground, nudgedSurface);
+  if (surfaceRatio >= target && nudgedSurface !== background) {
+    return { token: row.background, from: background, to: nudgedSurface, ratio: surfaceRatio };
+  }
+
+  return null;
 };

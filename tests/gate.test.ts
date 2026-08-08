@@ -112,3 +112,36 @@ describe("suggestPairFix", () => {
     expect(suggestPairFix({}, result.rows[0])).toBeNull();
   });
 });
+
+describe("suggestions preserve the design", () => {
+  const tokens = {
+    white: "#ffffff",
+    "sky-600": "#0284c7",
+    ink: "#94a3b8",
+    page: "#ffffff",
+  };
+
+  const failing = (fg: string, bg: string): TokenAuditRow =>
+    row(fg, bg, false, { foregroundHex: tokens[fg as keyof typeof tokens] });
+
+  it("darkens the surface rather than blackening white text", () => {
+    // "Fix white on sky-600 by making the text #111111" passes the check and
+    // destroys the button. The button darkens instead.
+    const fix = suggestPairFix(tokens, failing("white", "sky-600"))!;
+    expect(fix.token).toBe("sky-600");
+    expect(fix.from).toBe("#0284c7");
+    expect(fix.ratio).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("keeps light text lighter than its surface", () => {
+    const fix = suggestPairFix(tokens, failing("white", "sky-600"))!;
+    const toLum = (h: string) => parseInt(h.slice(1, 3), 16);
+    expect(toLum(fix.to)).toBeLessThan(toLum("#0284c7") + 60);
+  });
+
+  it("still moves dark text on a light surface", () => {
+    const fix = suggestPairFix(tokens, failing("ink", "page"))!;
+    expect(fix.token).toBe("ink");
+    expect(fix.ratio).toBeGreaterThanOrEqual(4.5);
+  });
+});
