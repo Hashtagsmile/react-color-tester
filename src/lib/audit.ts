@@ -1,4 +1,5 @@
 import { contrastRatio, contrastRating, readableTextColor } from "./color.js";
+import type { DiscoveredPair, TokenMap } from "./discover.js";
 import type { AuditResult, AuditRow, ColorKey, Palette } from "./types.js";
 
 /**
@@ -88,4 +89,69 @@ export const auditPalette = (colors: Palette): AuditResult => {
 
   const failures = rows.filter((r) => !r.rating.pass);
   return { rows, failures, passed: failures.length === 0 };
+};
+
+/* ------------------------------------------------------------------ */
+/*  Arbitrary token sets                                              */
+/* ------------------------------------------------------------------ */
+
+export interface TokenAuditRow extends DiscoveredPair {
+  foregroundHex: string;
+  backgroundHex: string;
+  ratio: number;
+  rating: ReturnType<typeof contrastRating>;
+  /** True at the level the run asked for (AA by default). */
+  passes: boolean;
+}
+
+export interface TokenAuditResult {
+  rows: TokenAuditRow[];
+  failures: TokenAuditRow[];
+  passed: boolean;
+  /** Pairings naming a token that isn't a colour, or isn't defined at all. */
+  unresolved: DiscoveredPair[];
+}
+
+/**
+ * Grade a discovered (or hand-declared) set of pairings.
+ *
+ * The same `contrastRating` the five-role audit uses, so a project graded
+ * through its own tokens and one graded through the preview can't disagree.
+ * Pairings referencing a token we couldn't resolve are reported rather than
+ * silently dropped — a checker that quietly skips what it doesn't understand is
+ * worse than one that admits it.
+ */
+export const auditTokens = (
+  tokens: TokenMap,
+  pairs: DiscoveredPair[],
+  level: "AA" | "AAA" = "AA",
+): TokenAuditResult => {
+  const rows: TokenAuditRow[] = [];
+  const unresolved: DiscoveredPair[] = [];
+
+  for (const pair of pairs) {
+    const foregroundHex = tokens[pair.foreground];
+    const backgroundHex = tokens[pair.background];
+
+    if (!foregroundHex || !backgroundHex) {
+      unresolved.push(pair);
+      continue;
+    }
+
+    const ratio = contrastRatio(foregroundHex, backgroundHex);
+    const rating = contrastRating(ratio, pair.large);
+    const threshold = level === "AAA" ? (pair.large ? 4.5 : 7) : pair.large ? 3 : 4.5;
+
+    rows.push({
+      ...pair,
+      foregroundHex,
+      backgroundHex,
+      ratio,
+      rating,
+      passes: ratio >= threshold,
+    });
+  }
+
+  const failures = rows.filter((r) => !r.passes);
+  return { rows, failures, passed: failures.length === 0, unresolved };
 };

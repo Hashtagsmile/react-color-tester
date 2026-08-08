@@ -33,15 +33,42 @@ export const nudgeToContrast = (color: string, background: string, target: numbe
   if (!chroma.valid(color) || !chroma.valid(background)) return color;
   if (contrastRatio(color, background) >= target) return color;
 
-  const darken = chroma(background).luminance() > 0.5;
-  let c = chroma(color);
-  let guard = 0;
+  // Walk in one direction until the target is met or the colour stops moving.
+  const walk = (darken: boolean): string => {
+    let c = chroma(color);
+    let guard = 0;
+    while (chroma.contrast(c, background) < target && guard < 80) {
+      c = darken ? c.darken(0.08) : c.brighten(0.08);
+      guard += 1;
+    }
+    return c.hex();
+  };
 
-  while (chroma.contrast(c, background) < target && guard < 80) {
-    c = darken ? c.darken(0.08) : c.brighten(0.08);
-    guard += 1;
+  // Try both directions rather than picking one from the background's
+  // luminance. Against a mid-luminance background, lightening can cap out below
+  // the target while darkening clears it comfortably — choosing by `luminance
+  // > 0.5` alone left those palettes permanently failing.
+  const darker = walk(true);
+  const lighter = walk(false);
+  const darkerRatio = contrastRatio(darker, background);
+  const lighterRatio = contrastRatio(lighter, background);
+
+  // Prefer whichever reaches the target; if both do, take the smaller change so
+  // the palette stays closest to what the user chose.
+  const darkerOk = darkerRatio >= target;
+  const lighterOk = lighterRatio >= target;
+
+  if (darkerOk && lighterOk) {
+    const move = (hex: string) =>
+      Math.abs(chroma(hex).luminance() - chroma(color).luminance());
+    return move(darker) <= move(lighter) ? darker : lighter;
   }
-  return c.hex();
+  if (darkerOk) return darker;
+  if (lighterOk) return lighter;
+
+  // Neither reaches it — return the better attempt so the caller can report an
+  // improvement rather than silently doing nothing.
+  return darkerRatio >= lighterRatio ? darker : lighter;
 };
 
 export interface Suggestion {

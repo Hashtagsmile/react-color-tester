@@ -36,6 +36,11 @@ jobs:
         run: npm run build
 
       # The tool's own promise is that themes stay accessible. Proving it on the
-      # shipped presets keeps that honest.
-      - name: Contrast gate — bundled presets
+      # shipped tokens keeps that honest.
+      - name: Contrast gate — default theme
         run: node dist-node/bin/theme-lab.js check src/lib/__fixtures__/default-theme.css
+
+      # Dogfooding: discover this app's own pairings from its stylesheets and
+      # grade them. Confirmed failures fail the build; inferred ones warn.
+      - name: Contrast gate — discovered from our own CSS
+        run: node dist-node/bin/theme-lab.js check src
