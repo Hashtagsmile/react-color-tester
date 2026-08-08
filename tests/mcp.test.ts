@@ -123,6 +123,29 @@ describe.skipIf(!built)("theme-lab MCP server", () => {
     expect(headline?.needs ?? 3).toBe(3);
   });
 
+  it("audits CSS-in-JS from component source", async () => {
+    const result = JSON.parse(
+      await call("audit_stylesheet", {
+        css: ":root { --page: #ffffff; }",
+        source: 'const A = styled.p`color: #b0b8c4; background: #ffffff;`;',
+      }),
+    );
+    const found = result.confirmedFailures.find((f: any) => f.foreground === "#b0b8c4");
+    expect(found).toBeTruthy();
+    expect(found.ratio).toBeLessThan(4.5);
+  });
+
+  it("audits Tailwind class lists when given a colour map", async () => {
+    const result = JSON.parse(
+      await call("audit_stylesheet", {
+        css: ":root { --page: #ffffff; }",
+        source: '<div className="text-blue-300 bg-white" />',
+        tailwindColors: { "blue-300": "#93c5fd", white: "#ffffff" },
+      }),
+    );
+    expect(result.confirmedFailures.some((f: any) => f.foreground === "blue-300")).toBe(true);
+  });
+
   it("parses tokens using alias names", async () => {
     const parsed = JSON.parse(
       await call("parse_tokens", { source: "--brand: #4f46e5; --surface: #fff; --ink: #0f172a;" }),

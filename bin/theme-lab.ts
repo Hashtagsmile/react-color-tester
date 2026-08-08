@@ -10,6 +10,7 @@ import {
   flattenColors,
   parseTailwindColors,
 } from "../src/lib/tailwind.js";
+import { discoverStylePairs } from "../src/lib/cssinjs.js";
 import { parseTheme } from "../src/lib/import.js";
 import { EXPORTERS } from "../src/lib/exporters.js";
 import { generateVariant } from "../src/lib/theme.js";
@@ -43,6 +44,7 @@ Options:
   --json            Machine-readable output
   --no-baseline     Ignore the baseline file for this run
   --no-tailwind     Skip Tailwind config and class-list scanning
+  --no-css-in-js    Skip styled-components / Emotion / style-object scanning
   -h, --help
 
 Config is optional: themelab.config.json, .themelabrc.json, or a "themeLab"
@@ -52,6 +54,7 @@ Exits 1 on a new failure, so it works as a CI gate.
 
 const STYLE_EXTS = new Set([".css", ".scss", ".sass", ".less"]);
 const MARKUP_EXTS = new Set([".jsx", ".tsx", ".html", ".vue", ".svelte", ".astro"]);
+const SCRIPT_EXTS = new Set([".js", ".jsx", ".ts", ".tsx", ".mjs"]);
 const TAILWIND_CONFIGS = [
   "tailwind.config.js",
   "tailwind.config.cjs",
@@ -213,6 +216,9 @@ const resolveSources = (
 
 const pad = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s.padEnd(n));
 
+/** A literal colour is written as-is; a custom property gets its `--` back. */
+const tokenLabel = (token: string): string => (token.startsWith("#") ? token : `--${token}`);
+
 /** One line, first selector only — a grouped rule shouldn't wreck the table. */
 const shortSelector = (selector: string): string => {
   const parts = selector
@@ -281,6 +287,37 @@ const scanTailwind = (roots: string[]): TailwindScan | null => {
   };
 };
 
+/**
+ * styled-components, Emotion, vanilla-extract and inline style objects express
+ * the same thing as a CSS rule, in JavaScript. Literal colours become their own
+ * token name, so `#ffffff on #6366f1` reads sensibly in the report.
+ */
+const scanStyles = (roots: string[]) => {
+  const files = roots.filter((d) => existsSync(d)).flatMap((d) => filesIn(d, SCRIPT_EXTS));
+
+  const pairs: DiscoveredPair[] = [];
+  const tokens: TokenMap = {};
+
+  for (const file of files) {
+    const scan = discoverStylePairs(
+      readFileSync(file, "utf8"),
+      relative(process.cwd(), file),
+    );
+    pairs.push(...scan.pairs);
+    Object.assign(tokens, scan.tokens);
+  }
+
+  const seen = new Set<string>();
+  const deduped = pairs.filter((p) => {
+    const key = `${p.foreground}|${p.background}|${p.large}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return { pairs: deduped, tokens, files: files.length };
+};
+
 const analyse = (argv: string[], path: string | undefined, config: Config) => {
   const level: "AA" | "AAA" =
     (flag(argv, "min") ?? config.level ?? "aa").toLowerCase() === "aaa" ? "AAA" : "AA";
@@ -288,22 +325,26 @@ const analyse = (argv: string[], path: string | undefined, config: Config) => {
 
   const roots = path ? [path] : (config.include ?? CANDIDATE_DIRS);
   const tailwind = argv.includes("--no-tailwind") ? null : scanTailwind(roots);
+  const styles = argv.includes("--no-css-in-js")
+    ? { pairs: [], tokens: {}, files: 0 }
+    : scanStyles(roots);
 
   // A Tailwind project may have no stylesheets at all, so a missing one isn't
   // fatal once we've found a config.
-  const sources = resolveSources(path, config, tailwind !== null);
+  const sources = resolveSources(path, config, tailwind !== null || styles.pairs.length > 0);
 
   // One combined stylesheet: tokens are usually declared in one file and used
   // in another, so grading files in isolation would resolve almost nothing.
   const combined = sources.map((s) => s.css).join("\n");
-  const tokens = { ...extractTokens(combined), ...(tailwind?.tokens ?? {}) };
+  const tokens = { ...extractTokens(combined), ...(tailwind?.tokens ?? {}), ...styles.tokens };
   const pairs = [
     ...discoverPairs(combined),
     ...(tailwind?.pairs ?? []),
+    ...styles.pairs,
     ...(config.pairs ?? []),
   ];
 
-  return { sources, level, strict, combined, tokens, pairs, tailwind };
+  return { sources, level, strict, combined, tokens, pairs, tailwind, styles };
 };
 
 /* ------------------------------------------------------------------ */
@@ -377,7 +418,7 @@ const runFallback = (
 /* ------------------------------------------------------------------ */
 
 const runCheck = (argv: string[], path: string | undefined, config: Config): never => {
-  const { sources, level, strict, combined, tokens, pairs, tailwind } = analyse(argv, path, config);
+  const { sources, level, strict, combined, tokens, pairs, tailwind, styles } = analyse(argv, path, config);
   const asJson = argv.includes("--json");
 
   if (!pairs.length) runFallback(combined, sources, level, asJson);
@@ -433,6 +474,7 @@ const runCheck = (argv: string[], path: string | undefined, config: Config): nev
   const scanned = [
     sources.length ? describeSources(sources) : null,
     tailwind ? `${tailwind.configFile} + ${tailwind.markupFiles} markup files` : null,
+    styles.pairs.length ? `CSS-in-JS in ${styles.files} files` : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -470,7 +512,7 @@ const runCheck = (argv: string[], path: string | undefined, config: Config): nev
       const s = suggestPairFix(tokens, r, level);
       if (s) {
         process.stdout.write(
-          `        → set --${s.token} to ${s.to} (from ${s.from}) for ${s.ratio.toFixed(2)}:1\n`,
+          `        → set ${tokenLabel(s.token)} to ${s.to} (from ${s.from}) for ${s.ratio.toFixed(2)}:1\n`,
         );
       }
     }

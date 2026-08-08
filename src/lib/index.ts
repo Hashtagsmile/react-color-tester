@@ -10,5 +10,6 @@ export * from "./audit.js";
 export * from "./remediate.js";
 export * from "./gate.js";
 export * from "./tailwind.js";
+export * from "./cssinjs.js";
 export * from "./import.js";
 export * from "./exporters.js";
