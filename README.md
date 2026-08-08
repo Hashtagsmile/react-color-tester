@@ -52,30 +52,59 @@ The colour maths lives in a dependency‑light TypeScript core (`src/lib/`) that
 ### Contrast gate for CI
 
 ```bash
-npm run build:node
-npx theme-lab check src/                # discovers tokens and pairings, exits 1 below AA
-npx theme-lab check --min aaa --strict
-npx theme-lab tokens src/               # list every colour token it found
+npx theme-lab check          # finds your stylesheets, works out the pairings, exits 1 on failure
 ```
 
-**No config, and no five-role assumption.** Point it at a stylesheet or a directory and it works out your design system by reading the CSS:
-
-- **Tokens** — every custom property that resolves to a colour, following `var()` aliases through a semantic layer to the primitives underneath, and computing `color-mix()` rather than reading its first ingredient.
-- **Pairings** — a rule that sets both a text colour and a background *is* a pairing the browser paints. Rules that set only a text colour are measured against the nearest ancestor selector that paints a surface, and flagged as inferred.
-- **Thresholds** — WCAG's large-text carve-out (≥24px, or ≥18.66px bold) is read off each rule's own `font-size`, so a 32px heading isn't graded against the 4.5:1 body bar.
-
-Confirmed failures fail the build. Inferred ones warn, because CSS alone can't prove which surface an element lands on — `--strict` enforces them too.
-
 ```
-  src/styles/tokens.css, src/styles/app.css
-  32 colour tokens · 29 pairings found in your CSS · WCAG AA
+  src/styles/theme.scss
+  4 colour tokens · 3 pairings discovered · WCAG AA
 
-  FAIL  text-muted on surface-raised               3.11:1  body   .card__meta
-  WARN  warning on surface-base                    1.94:1  body   .badge--warning
-  PASS  text-primary on surface-base              17.42:1  body   body
+  FAIL  accent on bg                             2.15:1  body   .pill
+        → set --accent to #ae6300 (from #f59e0b) for 4.58:1
+  FAIL  muted on bg                              2.54:1  body   .caption
+        → set --muted to #6c737e (from #9ca3af) for 4.78:1
+  PASS  ink on bg                               17.74:1  body   body
+
+  2 new failure(s) below AA.
 ```
 
-This repo runs it against its own stylesheets in CI.
+**No config, and no five-role assumption.** It reads `.css`, `.scss`, `.sass` and `.less`, and works out your design system from the stylesheet:
+
+- **Tokens** — every custom property resolving to a colour, following `var()` aliases through a semantic layer to the primitives underneath, and computing `color-mix()` rather than reading its first ingredient.
+- **Pairings** — a rule that sets both a text colour and a background *is* a pairing the browser paints. A rule that sets only a text colour is measured against the nearest ancestor selector that paints a surface.
+- **Thresholds** — WCAG's large-text carve-out (≥24px, or ≥18.66px bold) read off each rule's own `font-size`, so a 32px heading isn't graded against the 4.5:1 body bar.
+- **Fixes** — every failure comes with a hex that clears the threshold, keeping the token's hue.
+
+### Adopting it on a project that already has problems
+
+A checker that fails your build on forty pre-existing issues gets removed the same day. So record what's already broken and gate on regressions only:
+
+```bash
+npx theme-lab baseline       # writes .themelab-baseline.json — commit it
+npx theme-lab check          # passes; known failures are listed but don't gate
+```
+
+New failures still fail the build, and when someone fixes a baselined pairing it tells you the entry can be pruned. `--no-baseline` ignores the file for a run.
+
+### Configuration (optional)
+
+`themelab.config.json`, `.themelabrc.json`, or a `themeLab` key in `package.json`:
+
+```json
+{
+  "include": ["src/styles", "packages/ui/src"],
+  "level": "AA",
+  "strict": false,
+  "ignore": ["decorative-icon on surface-base"],
+  "pairs": [
+    { "foreground": "on-brand", "background": "brand-600", "large": false, "selector": "js", "origin": "rule" }
+  ]
+}
+```
+
+`pairs` is for pairings the CSS can't express — colours applied from JavaScript, for instance.
+
+**Confirmed vs inferred.** A pairing where one rule set both colours is confirmed and gates the build. Where only a text colour was set, the surface is resolved from an ancestor selector — CSS alone can't prove which surface an element lands on, so those warn instead. `--strict` enforces them too.
 
 ### MCP server
 
@@ -144,7 +173,7 @@ npm run lint         # ESLint
 
 ## Tests
 
-`npm test` covers the parts where being wrong is silent: WCAG ratios against reference values, `encodeTheme`/`decodeTheme` round‑trips, the bounded contrast loops, CSS discovery (aliases, `color-mix`, surface resolution, large‑text thresholds), parser behaviour across CSS / Tailwind / JSON, export→import round‑trips, and an end‑to‑end run of the MCP server over stdio.
+`npm test` covers the parts where being wrong is silent: baseline gating, WCAG ratios against reference values, `encodeTheme`/`decodeTheme` round‑trips, the bounded contrast loops, CSS discovery (aliases, `color-mix`, surface resolution, large‑text thresholds), parser behaviour across CSS / Tailwind / JSON, export→import round‑trips, and an end‑to‑end run of the MCP server over stdio.
 
 There's also a test asserting every bundled preset passes its own grader. It was worth writing: when first run, **9 of 11 light presets failed** — including the one named "High Contrast", whose amber accent sat at 1.92:1 on white.
 
@@ -153,9 +182,9 @@ One test randomises 400 palettes and asserts the remediation clears every one. I
 ## Roadmap
 
 - [ ] Adjustable type scale (heading/body sizes) reflected in the export
-- [ ] More export targets (SCSS, design tokens / Style Dictionary)
+- [ ] Tailwind v3 config and CSS-in-JS as discovery inputs
+- [ ] More export targets (design tokens / Style Dictionary)
 - [ ] Saveable palette gallery
-- [ ] Config file for declaring pairings the CSS can't express
 - [ ] Import a palette from an image
 
 ## License
