@@ -52,6 +52,7 @@ describe.skipIf(!built)("theme-lab MCP server", () => {
   it("advertises the tools an assistant needs", async () => {
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual([
+      "audit_stylesheet",
       "check_contrast",
       "export_theme",
       "parse_tokens",
@@ -94,6 +95,32 @@ describe.skipIf(!built)("theme-lab MCP server", () => {
   it("round-trips a palette through a share link", async () => {
     const url = await call("preview_theme", { palette: accessiblePalette });
     expect(url).toMatch(/^https:\/\/.+\?theme=[\w-]+$/);
+  });
+
+  it("audits a real stylesheet by discovering its own pairings", async () => {
+    // Nothing here maps onto the five-role model, and the surface is a
+    // color-mix — the case that used to resolve to its first ingredient.
+    const css = `
+      :root {
+        --ink: #0f172a;
+        --page: #ffffff;
+        --surface: color-mix(in srgb, var(--ink) 4%, var(--page));
+        --faint: #b8c0cc;
+      }
+      body { background: var(--page); color: var(--ink); }
+      .note { color: var(--faint); background: var(--surface); }
+      .headline { color: var(--faint); background: var(--surface); font-size: 2rem; }
+    `;
+    const result = JSON.parse(await call("audit_stylesheet", { css }));
+
+    expect(result.tokensFound).toBe(4);
+    expect(result.passed).toBe(false);
+
+    const note = result.confirmedFailures.find((f: any) => f.selector === ".note");
+    expect(note.needs).toBe(4.5);
+    // The 2rem headline is large text, so it gets the 3:1 bar instead.
+    const headline = result.confirmedFailures.find((f: any) => f.selector === ".headline");
+    expect(headline?.needs ?? 3).toBe(3);
   });
 
   it("parses tokens using alias names", async () => {

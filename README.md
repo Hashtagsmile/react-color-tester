@@ -37,7 +37,7 @@ That matters more now, not less. An assistant will hand you a palette in seconds
 - ↩️ **Undo / redo** — a proper history stack for every change.
 - 📦 **Export** — CSS custom properties, a Tailwind config, JSON, or an AI‑ready brief — in HEX / RGB / HSL.
 - 🔗 **Shareable links** — the full theme is encoded in the URL, and your work is auto‑saved to `localStorage`.
-- 🤖 **CLI + MCP server** — gate contrast in CI, or let a coding assistant check its own palette. See below.
+- 🤖 **CLI + MCP server** — point it at any codebase and it discovers your tokens and pairings from the CSS itself, then gates contrast in CI. See below.
 
 ## How it works
 
@@ -53,12 +53,29 @@ The colour maths lives in a dependency‑light TypeScript core (`src/lib/`) that
 
 ```bash
 npm run build:node
-npx theme-lab check src/styles/tokens.css     # exits 1 if any pairing drops below AA
-npx theme-lab check tokens.css --min aaa --json
-npx theme-lab export tokens.css tailwind
+npx theme-lab check src/                # discovers tokens and pairings, exits 1 below AA
+npx theme-lab check --min aaa --strict
+npx theme-lab tokens src/               # list every colour token it found
 ```
 
-Assistants generate a lot of CSS. This turns "did the palette stay accessible" into a build step instead of something a human has to catch in review. This repo's own CI runs it against the default theme.
+**No config, and no five-role assumption.** Point it at a stylesheet or a directory and it works out your design system by reading the CSS:
+
+- **Tokens** — every custom property that resolves to a colour, following `var()` aliases through a semantic layer to the primitives underneath, and computing `color-mix()` rather than reading its first ingredient.
+- **Pairings** — a rule that sets both a text colour and a background *is* a pairing the browser paints. Rules that set only a text colour are measured against the nearest ancestor selector that paints a surface, and flagged as inferred.
+- **Thresholds** — WCAG's large-text carve-out (≥24px, or ≥18.66px bold) is read off each rule's own `font-size`, so a 32px heading isn't graded against the 4.5:1 body bar.
+
+Confirmed failures fail the build. Inferred ones warn, because CSS alone can't prove which surface an element lands on — `--strict` enforces them too.
+
+```
+  src/styles/tokens.css, src/styles/app.css
+  32 colour tokens · 29 pairings found in your CSS · WCAG AA
+
+  FAIL  text-muted on surface-raised               3.11:1  body   .card__meta
+  WARN  warning on surface-base                    1.94:1  body   .badge--warning
+  PASS  text-primary on surface-base              17.42:1  body   body
+```
+
+This repo runs it against its own stylesheets in CI.
 
 ### MCP server
 
@@ -74,7 +91,8 @@ Lets Claude Code, Cursor or any MCP client check a palette *before* it writes th
 
 | Tool | Does |
 |---|---|
-| `check_contrast` | Grades a palette against WCAG 2.1, with advice on what to change |
+| `audit_stylesheet` | Reads a stylesheet, discovers its real pairings, grades them |
+| `check_contrast` | Grades a five-role palette, with advice on what to change |
 | `export_theme` | Converts a palette to CSS / Tailwind / JSON / a design brief |
 | `parse_tokens` | Reads a palette out of an existing codebase's tokens |
 | `preview_theme` | Returns a share link so a human can eyeball it on real UI |
@@ -126,15 +144,18 @@ npm run lint         # ESLint
 
 ## Tests
 
-`npm test` covers the parts where being wrong is silent: WCAG ratios against reference values, `encodeTheme`/`decodeTheme` round‑trips, the bounded contrast loop, parser behaviour across CSS / Tailwind / JSON, export→import round‑trips, and an end‑to‑end run of the MCP server over stdio.
+`npm test` covers the parts where being wrong is silent: WCAG ratios against reference values, `encodeTheme`/`decodeTheme` round‑trips, the bounded contrast loops, CSS discovery (aliases, `color-mix`, surface resolution, large‑text thresholds), parser behaviour across CSS / Tailwind / JSON, export→import round‑trips, and an end‑to‑end run of the MCP server over stdio.
 
 There's also a test asserting every bundled preset passes its own grader. It was worth writing: when first run, **9 of 11 light presets failed** — including the one named "High Contrast", whose amber accent sat at 1.92:1 on white.
+
+One test randomises 400 palettes and asserts the remediation clears every one. It caught a convergence bug that fixed fixtures never would: the fix chose its direction from the background's luminance, so against a mid‑luminance background it committed to lightening — which can't reach 3:1 — when darkening would have cleared it easily.
 
 ## Roadmap
 
 - [ ] Adjustable type scale (heading/body sizes) reflected in the export
 - [ ] More export targets (SCSS, design tokens / Style Dictionary)
 - [ ] Saveable palette gallery
+- [ ] Config file for declaring pairings the CSS can't express
 - [ ] Import a palette from an image
 
 ## License

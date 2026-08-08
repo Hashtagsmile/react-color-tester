@@ -169,3 +169,24 @@ describe("randomize is accessible by default", () => {
     expect(failures, `failing draws:\n${failures.slice(0, 5).join("\n")}`).toEqual([]);
   });
 });
+
+describe("direction choice", () => {
+  // Picking the nudge direction from `background.luminance() > 0.5` alone left
+  // mid-luminance backgrounds permanently failing: lightening caps out below
+  // the target while darkening clears it easily. Found by the 400-draw test.
+  it("darkens when lightening can't reach the target", () => {
+    const background = "#7f7f7f";
+    const fixed = nudgeToContrast("#8a8a8a", background, 3);
+    expect(contrastRatio(fixed, background)).toBeGreaterThanOrEqual(3);
+  });
+
+  it("reaches the target against mid-luminance backgrounds across the band", () => {
+    const stuck: string[] = [];
+    for (let l = 30; l <= 70; l += 2) {
+      const background = chroma(`hsl(0, 0%, ${l}%)`).hex();
+      const fixed = nudgeToContrast(background, background, 3);
+      if (contrastRatio(fixed, background) < 3) stuck.push(`${background}`);
+    }
+    expect(stuck, `unreachable: ${stuck.join(", ")}`).toEqual([]);
+  });
+});

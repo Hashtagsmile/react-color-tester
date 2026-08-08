@@ -5,6 +5,7 @@
 export * from "./types.js";
 export * from "./color.js";
 export * from "./theme.js";
+export * from "./discover.js";
 export * from "./audit.js";
 export * from "./remediate.js";
 export * from "./import.js";
