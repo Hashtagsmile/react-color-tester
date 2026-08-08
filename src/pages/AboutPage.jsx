@@ -14,15 +14,17 @@ const AboutPage = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const socials = [
-    { icon: <FaGoogle />, label: "Continue with Google" },
-    { icon: <FaApple />, label: "Continue with Apple" },
-    { icon: <FaXTwitter />, label: "Continue with X" },
+    { icon: <FaGoogle />, label: "Tertiary button" },
+    { icon: <FaApple />, label: "Tertiary button" },
+    { icon: <FaXTwitter />, label: "Tertiary button" },
   ];
 
+  // Text on the tinted brand panel — a different background from the form side,
+  // and historically where a low-contrast palette shows up first.
   const benefits = [
-    "Unlimited projects on every plan",
-    "SOC 2 Type II compliant by default",
-    "Ship in minutes, not months",
+    "List item on the brand panel",
+    "List item on the brand panel",
+    "List item on the brand panel",
   ];
 
   const togglePasswordVisibility = () => {
@@ -46,12 +48,13 @@ const AboutPage = () => {
         <aside className="signin-brand">
           <div className="signin-brand-glow" aria-hidden="true" />
           <div className="signin-brand-top">
-            <img className="signin-wordmark" src={logo1} alt="Logoipsum" />
+            <img className="signin-wordmark" src={logo1} alt="Your logo" />
           </div>
           <div className="signin-brand-body">
-            <p className="signin-eyebrow">Welcome back</p>
+            <p className="signin-eyebrow">Eyebrow label</p>
             <h2 className="signin-brand-headline">
-              The workspace your whole team actually enjoys using.
+              Panel headline — heading text sitting on a tinted brand surface
+              rather than the page background.
             </h2>
             <ul className="signin-benefits">
               {benefits.map((benefit) => (
@@ -65,7 +68,7 @@ const AboutPage = () => {
             </ul>
           </div>
           <p className="signin-brand-foot">
-            Trusted by 12,000+ teams shipping every day.
+            Panel footnote · muted small text
           </p>
         </aside>
 
@@ -73,27 +76,28 @@ const AboutPage = () => {
         <div className="signin-main">
           <div className="signin-form-wrap">
             <header className="signin-head">
-              <h1 className="signin-title">Sign in to your account</h1>
+              <h1 className="signin-title">Form title</h1>
               <p className="signin-sub">
-                Enter your details below to pick up where you left off.
+                Form subtitle. Body copy under a heading, at the size supporting
+                text usually sits at.
               </p>
             </header>
 
             <form className="signin-form" onSubmit={handleSubmit}>
               <label className="signin-field">
-                <span className="signin-label">Email</span>
+                <span className="signin-label">Field label</span>
                 <input
                   className="signin-input"
                   type="email"
                   name="email"
-                  placeholder="you@company.com"
+                  placeholder="Placeholder text"
                   autoComplete="off"
                   aria-label="Email"
                 />
               </label>
 
               <label className="signin-field">
-                <span className="signin-label">Password</span>
+                <span className="signin-label">Field label</span>
                 <div className="signin-password">
                   <input
                     className="signin-input"
@@ -118,20 +122,20 @@ const AboutPage = () => {
               <div className="signin-row">
                 <label className="signin-remember">
                   <input type="checkbox" className="signin-check" />
-                  <span>Remember me</span>
+                  <span>Checkbox label</span>
                 </label>
                 <a href="#" className="signin-forgot">
-                  Forgot password?
+                  Inline link
                 </a>
               </div>
 
               <button type="submit" className="signin-submit">
-                Sign in
+                Primary button
               </button>
             </form>
 
             <div className="signin-divider">
-              <span>or continue with</span>
+              <span>Divider label</span>
             </div>
 
             <div className="signin-socials">
@@ -148,9 +152,9 @@ const AboutPage = () => {
             </div>
 
             <p className="signin-alt">
-              Don’t have an account?{" "}
+              Secondary text with an{" "}
               <a href="#" className="signin-alt-link">
-                Sign up
+                inline link
               </a>
             </p>
           </div>

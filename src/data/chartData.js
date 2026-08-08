@@ -35,39 +35,9 @@ export const sparkConversion = [
 
 // Recent activity table rows.
 export const activityRows = [
-  {
-    name: "Amelia Ström",
-    email: "amelia.strom@northloop.io",
-    status: "Paid",
-    amount: "€ 1 240",
-    date: "Jul 6",
-  },
-  {
-    name: "Karim Haddad",
-    email: "karim@brightfold.co",
-    status: "Pending",
-    amount: "€ 620",
-    date: "Jul 6",
-  },
-  {
-    name: "Sofia Lindqvist",
-    email: "sofia.l@atlasgrid.com",
-    status: "Paid",
-    amount: "€ 3 180",
-    date: "Jul 5",
-  },
-  {
-    name: "Daniel Okafor",
-    email: "d.okafor@meridian.dev",
-    status: "Refunded",
-    amount: "€ 90",
-    date: "Jul 5",
-  },
-  {
-    name: "Elena Rossi",
-    email: "elena@lumenworks.eu",
-    status: "Paid",
-    amount: "€ 2 050",
-    date: "Jul 4",
-  },
+  { name: "Row label A", email: "supporting.text@example.com", status: "Paid", amount: "€ 1 240", date: "Jul 6" },
+  { name: "Row label B", email: "supporting.text@example.com", status: "Pending", amount: "€ 620", date: "Jul 6" },
+  { name: "Row label C", email: "supporting.text@example.com", status: "Paid", amount: "€ 3 180", date: "Jul 5" },
+  { name: "Row label D", email: "supporting.text@example.com", status: "Refunded", amount: "€ 90", date: "Jul 5" },
+  { name: "Row label E", email: "supporting.text@example.com", status: "Paid", amount: "€ 2 050", date: "Jul 4" },
 ];

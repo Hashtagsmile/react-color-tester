@@ -126,41 +126,44 @@ export const predefinedFonts: string[] = [
 ];
 
 /**
- * FAQ copy for Northwind, the fictional product rendered inside the preview.
+ * Copy for the accordion on the preview's landing surface.
  *
- * This has to stay in Northwind's voice. Theme Lab's own help text belongs in the
- * "How it works" guide — putting it here meant the fake product's marketing page
- * was answering questions about the real tool, which read as a bug.
+ * Like the rest of the preview, each string names the element it lives in rather
+ * than selling a fictional product — you shouldn't have to read marketing copy
+ * to work out which token you're looking at. Lengths are realistic on purpose:
+ * a two-word answer would hide how body text behaves once it wraps.
+ *
+ * Theme Lab's own help text belongs in the "How it works" guide, not here.
  */
 export const faqQuestions: FaqEntry[] = [
   {
-    title: "How long does it take to get set up?",
+    title: "Accordion item — closed by default",
     content:
-      "Most teams are running the same afternoon. Import your existing projects from a CSV or one of our integrations, invite the people who need access, and Northwind builds your first workspace automatically. No migration project, no professional services engagement.",
+      "Accordion body. This panel holds body copy at reading length so you can see how the text colour behaves inside a bordered container, and how much room the answer needs once it wraps across several lines.",
   },
   {
-    title: "Can we try it before committing?",
+    title: "Accordion item — open one to see the body text",
     content:
-      "Every plan starts with a 14-day trial of the full product — no credit card, no feature gates. If you need longer to run a proper pilot, tell us and we'll extend it.",
+      "Accordion body. The heading above uses your text colour at a heavier weight; this paragraph uses the same colour at body weight, which is where a low-contrast text token usually becomes obvious first.",
   },
   {
-    title: "How does pricing work as the team grows?",
+    title: "Accordion item — a longer question that wraps onto two lines",
     content:
-      "You pay per active member per month, billed monthly or annually. Guests and read-only viewers are free, so bringing in clients or stakeholders never changes your bill.",
+      "Accordion body. Deliberately long, because a question that wraps is the realistic case and it shows whether the heading font keeps its line height when it runs past one line.",
   },
   {
-    title: "Does Northwind replace our other tools?",
+    title: "Accordion item",
     content:
-      "For most teams it replaces the project tracker, the docs wiki and the status-update spreadsheet. It sits alongside your chat and code tools rather than competing with them — there are native integrations for both.",
+      "Accordion body. Shorter answers sit right under the question, so the divider spacing between closed items is easy to compare against an open one.",
   },
   {
-    title: "How do you handle security and access control?",
+    title: "Accordion item",
     content:
-      "Granular per-workspace permissions, full audit logs and SAML SSO on every business plan. Data is encrypted in transit and at rest, and you can export everything you've put in at any time.",
+      "Accordion body. The chevron on the right uses your primary colour, which is worth checking against the card surface rather than the page background.",
   },
   {
-    title: "What happens to our data if we leave?",
+    title: "Accordion item — last in the list",
     content:
-      "You export it. Projects, docs, comments and attachments come out as structured JSON plus original files, and we keep nothing after the account closes.",
+      "Accordion body. The final item has no bottom divider, so you can see where the list ends against the section background.",
   },
 ];
