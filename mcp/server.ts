@@ -6,6 +6,8 @@ import { auditPalette } from "../src/lib/audit.js";
 import { parseTheme } from "../src/lib/import.js";
 import { auditTokens } from "../src/lib/audit.js";
 import { discoverPairs, extractTokens } from "../src/lib/discover.js";
+import { discoverStylePairs } from "../src/lib/cssinjs.js";
+import { discoverClassPairs } from "../src/lib/tailwind.js";
 import { EXPORTERS } from "../src/lib/exporters.js";
 import { encodeTheme, generateVariant } from "../src/lib/theme.js";
 import { COLOR_KEYS } from "../src/lib/types.js";
@@ -165,15 +167,30 @@ server.registerTool(
   {
     title: "Audit a stylesheet's real contrast",
     description:
-      "Read a CSS file and grade the colour pairings it actually renders. Works out the tokens and the pairings from the stylesheet itself — resolving var() aliases and color-mix(), and reading WCAG's large-text threshold off each rule's font-size — so it fits any design system rather than a fixed five-role palette. Use before changing theme colours in an existing codebase, or to check work after writing CSS.",
+      "Read a stylesheet or component source and grade the colour pairings it actually renders. Works out the tokens and the pairings from the stylesheet itself — resolving var() aliases and color-mix(), and reading WCAG's large-text threshold off each rule's font-size — so it fits any design system rather than a fixed five-role palette. Use before changing theme colours in an existing codebase, or to check work after writing CSS.",
     inputSchema: {
       css: z.string().describe("Raw CSS. Concatenate files if tokens and usage live apart."),
+      source: z
+        .string()
+        .optional()
+        .describe(
+          "Optional component source (JSX/TSX). Reads styled-components, Emotion, style objects and Tailwind class lists.",
+        ),
+      tailwindColors: z
+        .record(z.string(), z.string())
+        .optional()
+        .describe("Flat token->hex map for Tailwind class names, e.g. { 'blue-600': '#2563eb' }."),
       level: z.enum(["AA", "AAA"]).optional(),
     },
   },
-  async ({ css, level }) => {
-    const tokens = extractTokens(css);
-    const pairs = discoverPairs(css);
+  async ({ css, source, tailwindColors, level }) => {
+    const styles = source ? discoverStylePairs(source, "source") : { pairs: [], tokens: {} };
+    const tokens = { ...extractTokens(css), ...(tailwindColors ?? {}), ...styles.tokens };
+    const pairs = [
+      ...discoverPairs(css),
+      ...styles.pairs,
+      ...(source && tailwindColors ? discoverClassPairs(source, { label: "class" }) : []),
+    ];
     const result = auditTokens(tokens, pairs, level ?? "AA");
 
     // Confirmed pairings come from one rule setting both colours. Inferred ones

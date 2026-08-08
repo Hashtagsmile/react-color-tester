@@ -75,6 +75,8 @@ npx theme-lab check          # finds your stylesheets, works out the pairings, e
 - **Thresholds** — WCAG's large-text carve-out (≥24px, or ≥18.66px bold) read off each rule's own `font-size`, so a 32px heading isn't graded against the 4.5:1 body bar.
 - **Fixes** — every failure comes with a hex that clears the threshold, keeping the token's hue *and the design's polarity*: white text failing on a mid-blue button darkens the button, rather than turning the text black.
 
+**CSS-in-JS** is read too — styled-components, Emotion, vanilla-extract and inline `style` objects all express the same thing as a CSS rule. Literal colours become their own token name, so the report reads `#ffffff on #6366f1`. Declarations whose value comes from an interpolation (`color: ${p => p.theme.text}`) can't be resolved without running the app, so they're skipped rather than guessed at.
+
 **Tailwind** is read the same way. Colours come from `tailwind.config.js` merged over the default palette — resolved from your own installed `tailwindcss`, never a hardcoded copy that could drift — and pairings come from class lists, since `text-*` and `bg-*` on one element is the same signal as a CSS rule setting both. Variants are kept separate (`dark:` text is never paired against a light background), opacity modifiers like `bg-black/10` are skipped because there's no fixed colour to measure, and class lists built with `${…}` warn instead of gating since those branches may never apply together.
 
 ### Adopting it on a project that already has problems
@@ -122,7 +124,7 @@ Lets Claude Code, Cursor or any MCP client check a palette *before* it writes th
 
 | Tool | Does |
 |---|---|
-| `audit_stylesheet` | Reads a stylesheet, discovers its real pairings, grades them |
+| `audit_stylesheet` | Reads a stylesheet (and optionally component source — CSS-in-JS, Tailwind classes), discovers the real pairings, grades them |
 | `check_contrast` | Grades a five-role palette, with advice on what to change |
 | `export_theme` | Converts a palette to CSS / Tailwind / JSON / a design brief |
 | `parse_tokens` | Reads a palette out of an existing codebase's tokens |
@@ -184,7 +186,6 @@ One test randomises 400 palettes and asserts the remediation clears every one. I
 ## Roadmap
 
 - [ ] Adjustable type scale (heading/body sizes) reflected in the export
-- [ ] CSS-in-JS (styled-components, vanilla-extract) as a discovery input
 - [ ] More export targets (design tokens / Style Dictionary)
 - [ ] Saveable palette gallery
 - [ ] Import a palette from an image
