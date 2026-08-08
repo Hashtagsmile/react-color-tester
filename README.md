@@ -84,11 +84,15 @@ Lets Claude Code, Cursor or any MCP client check a palette *before* it writes th
 | Area | Choice |
 |---|---|
 | Framework | React 18 + Vite (SWC) |
-| Routing | React Router |
+| Core logic | TypeScript (strict), DOM‑free so Node can import it |
+| Tests | Vitest — 64 covering colour maths, parser, exporters, presets, MCP |
+| Routing | React Router, dashboard route lazy‑loaded |
 | Color math | chroma‑js (conversions, contrast, scales) |
 | Charts | Recharts |
 | Icons | react‑icons |
 | State | `useReducer` + Context, persisted to `localStorage` |
+| Agent interface | `@modelcontextprotocol/sdk` over stdio |
+| CI | ESLint, `tsc`, Vitest, both builds, and a WCAG contrast gate |
 
 ## Architecture notes
 
