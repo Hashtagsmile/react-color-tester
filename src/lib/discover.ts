@@ -347,6 +347,7 @@ export const discoverPairs = (css: string): DiscoveredPair[] => {
    */
   const surfaceFor = (selector: string): string | null => {
     const segments = selector.trim().split(/\s+/);
+
     for (let i = segments.length - 1; i > 0; i -= 1) {
       const ancestor = segments.slice(0, i).join(" ");
       const direct = surfaces.get(ancestor);
@@ -357,6 +358,16 @@ export const discoverPairs = (css: string): DiscoveredPair[] => {
       const bare = ancestor.replace(/(::?[\w-]+(\([^)]*\))?|\[[^\]]*\])+$/, "");
       if (bare && bare !== ancestor && surfaces.get(bare)) return surfaces.get(bare)!;
     }
+
+    // BEM puts the nesting in the name rather than the selector: `.card__meta`
+    // is inside `.card`, but nothing in the CSS says so. `__` and `--` are
+    // unambiguous enough to follow; a single dash is not (`.text-muted` is not
+    // inside `.text`), so it's left alone.
+    const last = segments[segments.length - 1] ?? "";
+    const block = last.replace(/(::?[\w-]+(\([^)]*\))?|\[[^\]]*\])+$/, "");
+    const bemMatch = /^(.*?)(__|--)/.exec(block);
+    if (bemMatch?.[1] && surfaces.has(bemMatch[1])) return surfaces.get(bemMatch[1])!;
+
     return pageBackground;
   };
 

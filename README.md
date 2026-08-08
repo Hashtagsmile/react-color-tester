@@ -68,12 +68,14 @@ npx theme-lab check          # finds your stylesheets, works out the pairings, e
   2 new failure(s) below AA.
 ```
 
-**No config, and no five-role assumption.** It reads `.css`, `.scss`, `.sass` and `.less`, and works out your design system from the stylesheet:
+**No config, and no five-role assumption.** It reads `.css`, `.scss`, `.sass`, `.less` — and Tailwind projects — working out your design system from the source:
 
 - **Tokens** — every custom property resolving to a colour, following `var()` aliases through a semantic layer to the primitives underneath, and computing `color-mix()` rather than reading its first ingredient.
 - **Pairings** — a rule that sets both a text colour and a background *is* a pairing the browser paints. A rule that sets only a text colour is measured against the nearest ancestor selector that paints a surface.
 - **Thresholds** — WCAG's large-text carve-out (≥24px, or ≥18.66px bold) read off each rule's own `font-size`, so a 32px heading isn't graded against the 4.5:1 body bar.
-- **Fixes** — every failure comes with a hex that clears the threshold, keeping the token's hue.
+- **Fixes** — every failure comes with a hex that clears the threshold, keeping the token's hue *and the design's polarity*: white text failing on a mid-blue button darkens the button, rather than turning the text black.
+
+**Tailwind** is read the same way. Colours come from `tailwind.config.js` merged over the default palette — resolved from your own installed `tailwindcss`, never a hardcoded copy that could drift — and pairings come from class lists, since `text-*` and `bg-*` on one element is the same signal as a CSS rule setting both. Variants are kept separate (`dark:` text is never paired against a light background), opacity modifiers like `bg-black/10` are skipped because there's no fixed colour to measure, and class lists built with `${…}` warn instead of gating since those branches may never apply together.
 
 ### Adopting it on a project that already has problems
 
@@ -182,7 +184,7 @@ One test randomises 400 palettes and asserts the remediation clears every one. I
 ## Roadmap
 
 - [ ] Adjustable type scale (heading/body sizes) reflected in the export
-- [ ] Tailwind v3 config and CSS-in-JS as discovery inputs
+- [ ] CSS-in-JS (styled-components, vanilla-extract) as a discovery input
 - [ ] More export targets (design tokens / Style Dictionary)
 - [ ] Saveable palette gallery
 - [ ] Import a palette from an image

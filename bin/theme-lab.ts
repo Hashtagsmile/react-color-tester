@@ -4,13 +4,19 @@ import { join, extname, relative, resolve as resolvePath } from "node:path";
 import { auditPalette, auditTokens } from "../src/lib/audit.js";
 import { discoverPairs, extractTokens } from "../src/lib/discover.js";
 import { applyBaseline, emptyBaseline, pairKey, suggestPairFix } from "../src/lib/gate.js";
+import { createRequire } from "node:module";
+import {
+  discoverClassPairs,
+  flattenColors,
+  parseTailwindColors,
+} from "../src/lib/tailwind.js";
 import { parseTheme } from "../src/lib/import.js";
 import { EXPORTERS } from "../src/lib/exporters.js";
 import { generateVariant } from "../src/lib/theme.js";
 import { suggestFixes } from "../src/lib/remediate.js";
 import { COLOR_KEYS } from "../src/lib/types.js";
 import type { TokenAuditRow } from "../src/lib/audit.js";
-import type { DiscoveredPair } from "../src/lib/discover.js";
+import type { DiscoveredPair, TokenMap } from "../src/lib/discover.js";
 import type { Baseline } from "../src/lib/gate.js";
 import type { ColorFormat, ExportFormat, Palette } from "../src/lib/types.js";
 
@@ -36,6 +42,7 @@ Options:
   --strict          Also enforce pairings whose surface was inferred
   --json            Machine-readable output
   --no-baseline     Ignore the baseline file for this run
+  --no-tailwind     Skip Tailwind config and class-list scanning
   -h, --help
 
 Config is optional: themelab.config.json, .themelabrc.json, or a "themeLab"
@@ -44,6 +51,13 @@ Exits 1 on a new failure, so it works as a CI gate.
 `;
 
 const STYLE_EXTS = new Set([".css", ".scss", ".sass", ".less"]);
+const MARKUP_EXTS = new Set([".jsx", ".tsx", ".html", ".vue", ".svelte", ".astro"]);
+const TAILWIND_CONFIGS = [
+  "tailwind.config.js",
+  "tailwind.config.cjs",
+  "tailwind.config.mjs",
+  "tailwind.config.ts",
+];
 const SKIP_DIRS = new Set([
   "node_modules",
   "dist",
@@ -99,8 +113,8 @@ const loadConfig = (): Config => {
   return pkg?.themeLab ?? {};
 };
 
-/** Every stylesheet under a directory, skipping build output and dependencies. */
-const styleFilesIn = (dir: string, depth = 0): string[] => {
+/** Files with a matching extension, skipping build output and dependencies. */
+const filesIn = (dir: string, exts: Set<string>, depth = 0): string[] => {
   if (depth > 8) return [];
   const out: string[] = [];
   let entries: string[];
@@ -114,8 +128,8 @@ const styleFilesIn = (dir: string, depth = 0): string[] => {
     if (SKIP_DIRS.has(entry) || entry.startsWith(".")) continue;
     const full = join(dir, entry);
     try {
-      if (statSync(full).isDirectory()) out.push(...styleFilesIn(full, depth + 1));
-      else if (STYLE_EXTS.has(extname(entry))) out.push(full);
+      if (statSync(full).isDirectory()) out.push(...filesIn(full, exts, depth + 1));
+      else if (exts.has(extname(entry))) out.push(full);
     } catch {
       /* unreadable entry — skip rather than abort the whole run */
     }
@@ -123,9 +137,37 @@ const styleFilesIn = (dir: string, depth = 0): string[] => {
   return out;
 };
 
+const styleFilesIn = (dir: string) => filesIn(dir, STYLE_EXTS);
+
+/**
+ * Tailwind's default palette, read from the project's own install.
+ *
+ * Not a hardcoded copy: ~240 hex values would drift from whatever version is
+ * actually installed, and a wrong hex means a wrong verdict. If Tailwind isn't
+ * resolvable we say so and grade only what the config defines.
+ */
+const resolveTailwindDefaults = (): TokenMap | null => {
+  // Tailwind logs deprecation warnings (`lightBlue` -> `sky`) on import. Those
+  // would land in the middle of the report and, worse, corrupt --json output.
+  const saved = { warn: console.warn, log: console.log, error: console.error };
+  console.warn = console.log = console.error = () => {};
+
+  try {
+    const req = createRequire(join(process.cwd(), "package.json"));
+    return flattenColors(req("tailwindcss/colors"));
+  } catch {
+    return null;
+  } finally {
+    Object.assign(console, saved);
+  }
+};
+
 const resolveSources = (
   path: string | undefined,
   config: Config,
+  /** When true, return [] instead of exiting if nothing matches — a Tailwind
+   *  project can legitimately have no stylesheets at all. */
+  soft = false,
 ): { label: string; css: string }[] => {
   if (path === "-") return [{ label: "stdin", css: readFileSync(0, "utf8") }];
 
@@ -136,7 +178,10 @@ const resolveSources = (
     if (!existsSync(path)) fail(`No such file or directory: ${path}`);
     if (statSync(path).isDirectory()) {
       const files = styleFilesIn(path);
-      if (!files.length) fail(`No stylesheets found under ${path}`);
+      if (!files.length) {
+        if (soft) return [];
+        fail(`No stylesheets found under ${path}`);
+      }
       return read(files);
     }
     return read([path]);
@@ -146,13 +191,17 @@ const resolveSources = (
     const files = config.include.flatMap((p) =>
       existsSync(p) && statSync(p).isDirectory() ? styleFilesIn(p) : existsSync(p) ? [p] : [],
     );
-    if (!files.length) fail(`Nothing matched "include" in your config.`);
+    if (!files.length) {
+      if (soft) return [];
+      fail(`Nothing matched "include" in your config.`);
+    }
     return read(files);
   }
 
   // No path and no config: scan the usual source roots.
   const files = CANDIDATE_DIRS.filter((d) => existsSync(d)).flatMap((d) => styleFilesIn(d));
   if (!files.length) {
+    if (soft) return [];
     fail(
       `No stylesheets found in ${CANDIDATE_DIRS.join(", ")}.\n\n` +
         `Pass a path:  theme-lab check path/to/styles\n` +
@@ -185,19 +234,76 @@ const renderRow = (mark: string, r: TokenAuditRow) =>
 /*  Shared analysis                                                   */
 /* ------------------------------------------------------------------ */
 
+interface TailwindScan {
+  configFile: string;
+  tokens: TokenMap;
+  pairs: DiscoveredPair[];
+  markupFiles: number;
+  defaultsResolved: boolean;
+}
+
+/**
+ * Tailwind keeps colours in a config and pairings in markup, so both are read.
+ * A class list carrying both `text-*` and `bg-*` is the same signal as a CSS
+ * rule setting `color` and `background`.
+ */
+const scanTailwind = (roots: string[]): TailwindScan | null => {
+  const configFile = TAILWIND_CONFIGS.find((f) => existsSync(f));
+  if (!configFile) return null;
+
+  const defaults = resolveTailwindDefaults();
+  const configured = parseTailwindColors(readFileSync(configFile, "utf8"));
+  const tokens: TokenMap = { ...(defaults ?? {}), ...configured };
+
+  const markupFiles = roots
+    .filter((d) => existsSync(d))
+    .flatMap((d) => filesIn(d, MARKUP_EXTS));
+
+  const pairs = markupFiles.flatMap((file) =>
+    discoverClassPairs(readFileSync(file, "utf8"), { label: relative(process.cwd(), file) }),
+  );
+
+  // Same pairing across many components is one thing to fix.
+  const seen = new Set<string>();
+  const deduped = pairs.filter((p) => {
+    const key = `${p.foreground}|${p.background}|${p.large}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return {
+    configFile,
+    tokens,
+    pairs: deduped,
+    markupFiles: markupFiles.length,
+    defaultsResolved: defaults !== null,
+  };
+};
+
 const analyse = (argv: string[], path: string | undefined, config: Config) => {
-  const sources = resolveSources(path, config);
   const level: "AA" | "AAA" =
     (flag(argv, "min") ?? config.level ?? "aa").toLowerCase() === "aaa" ? "AAA" : "AA";
   const strict = argv.includes("--strict") || config.strict === true;
 
+  const roots = path ? [path] : (config.include ?? CANDIDATE_DIRS);
+  const tailwind = argv.includes("--no-tailwind") ? null : scanTailwind(roots);
+
+  // A Tailwind project may have no stylesheets at all, so a missing one isn't
+  // fatal once we've found a config.
+  const sources = resolveSources(path, config, tailwind !== null);
+
   // One combined stylesheet: tokens are usually declared in one file and used
   // in another, so grading files in isolation would resolve almost nothing.
   const combined = sources.map((s) => s.css).join("\n");
-  const tokens = extractTokens(combined);
-  const pairs = [...discoverPairs(combined), ...(config.pairs ?? [])];
+  const tokens = { ...extractTokens(combined), ...(tailwind?.tokens ?? {}) };
+  const pairs = [
+    ...discoverPairs(combined),
+    ...(tailwind?.pairs ?? []),
+    ...(config.pairs ?? []),
+  ];
 
-  return { sources, level, strict, combined, tokens, pairs };
+  return { sources, level, strict, combined, tokens, pairs, tailwind };
 };
 
 /* ------------------------------------------------------------------ */
@@ -271,7 +377,7 @@ const runFallback = (
 /* ------------------------------------------------------------------ */
 
 const runCheck = (argv: string[], path: string | undefined, config: Config): never => {
-  const { sources, level, strict, combined, tokens, pairs } = analyse(argv, path, config);
+  const { sources, level, strict, combined, tokens, pairs, tailwind } = analyse(argv, path, config);
   const asJson = argv.includes("--json");
 
   if (!pairs.length) runFallback(combined, sources, level, asJson);
@@ -298,6 +404,13 @@ const runCheck = (argv: string[], path: string | undefined, config: Config): nev
           threshold: level,
           tokensFound: Object.keys(tokens).length,
           pairingsFound: result.rows.length,
+          tailwind: tailwind
+            ? {
+                config: tailwind.configFile,
+                markupFiles: tailwind.markupFiles,
+                defaultPaletteResolved: tailwind.defaultsResolved,
+              }
+            : null,
           passed: fresh.length === 0,
           newFailures: fresh.map((r) => ({
             key: pairKey(r),
@@ -317,10 +430,24 @@ const runCheck = (argv: string[], path: string | undefined, config: Config): nev
     process.exit(fresh.length ? 1 : 0);
   }
 
+  const scanned = [
+    sources.length ? describeSources(sources) : null,
+    tailwind ? `${tailwind.configFile} + ${tailwind.markupFiles} markup files` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   process.stdout.write(
-    `\n  ${describeSources(sources)}\n` +
+    `\n  ${scanned}\n` +
       `  ${Object.keys(tokens).length} colour tokens · ${result.rows.length} pairings discovered · WCAG ${level}\n\n`,
   );
+
+  if (tailwind && !tailwind.defaultsResolved) {
+    process.stdout.write(
+      `  Note: couldn't resolve tailwindcss/colors from this project, so only\n` +
+        `  colours defined in ${tailwind.configFile} were graded.\n\n`,
+    );
+  }
 
   const freshKeys = new Set(fresh.map(pairKey));
   const knownKeys = new Set(known.map(pairKey));
