@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { CiLock, CiUnlock } from "react-icons/ci";
-import { LuCopy, LuCheck } from "react-icons/lu";
+import { LuCopy, LuCheck, LuAlertTriangle } from "react-icons/lu";
 import { useTheme } from "../../../contexts/useTheme";
 import "./ColorPicker.css";
 
-export const ColorPicker = ({ colorKey, label, color }) => {
+export const ColorPicker = ({ colorKey, label, color, warning = false }) => {
   const { previewColor, commitColor, toggleLock, locked } = useTheme();
   const [copied, setCopied] = useState(false);
 
@@ -21,7 +21,7 @@ export const ColorPicker = ({ colorKey, label, color }) => {
   };
 
   return (
-    <div className={`color-picker ${isLocked ? "locked" : ""}`}>
+    <div className={`color-picker ${isLocked ? "locked" : ""} ${warning ? "warning" : ""}`}>
       <div className="color-swatch-wrap">
         <input
           type="color"
@@ -34,7 +34,17 @@ export const ColorPicker = ({ colorKey, label, color }) => {
       </div>
 
       <div className="color-meta">
-        <span className="color-label">{label}</span>
+        <span className="color-label">
+          {label}
+          {warning && (
+            <LuAlertTriangle
+              className="color-warning"
+              // The Contrast tab carries the detail; this is just the pointer.
+              title={`${label} is part of a pairing below AA — see the Contrast tab`}
+              aria-label="Involved in a contrast failure"
+            />
+          )}
+        </span>
         <span className="color-hex">{color.toUpperCase()}</span>
       </div>
 

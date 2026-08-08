@@ -54,6 +54,8 @@ export interface AuditRow {
   large: boolean;
   /** True when the app computes this foreground rather than using the palette slot. */
   derived: boolean;
+  /** Plain language: what this pairing is, and what breaks when it fails. */
+  why: string;
   /** The colour actually measured — differs from `colors[foreground]` when derived. */
   resolvedForeground: string;
   ratio: number;

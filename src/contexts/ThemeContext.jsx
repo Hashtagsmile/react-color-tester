@@ -5,6 +5,7 @@ import {
   decodeTheme,
   encodeTheme,
   generateVariant,
+  makeAccessible,
   randomColors,
   randomFonts,
   readableTextColor,
@@ -83,9 +84,16 @@ const reducer = (state, action) => {
         fonts: { ...state.fonts, [action.slot]: action.value },
       });
 
+    // Randomize is a "give me a starting point" action, so the starting point
+    // shouldn't be one that fails WCAG. Locked swatches are left alone, which
+    // means a heavily locked palette can still come back failing — the sidebar
+    // says so, and offers the fix.
     case "RANDOMIZE_COLORS":
       return withHistory(state, {
-        colors: randomColors(state.locked, state.colors, state.isDarkMode),
+        colors: makeAccessible(
+          randomColors(state.locked, state.colors, state.isDarkMode),
+          state.locked,
+        ),
         isCustom: true,
         themeName: "Custom",
       });
@@ -134,6 +142,21 @@ const reducer = (state, action) => {
         future: state.future.slice(1),
         checkpoint: null,
       };
+    }
+
+    // Applying a single suggested contrast fix. Undoable, so trying one is safe.
+    case "SET_COLOR":
+      return withHistory(state, {
+        colors: { ...state.colors, [action.key]: action.value },
+        isCustom: true,
+        themeName: "Custom",
+      });
+
+    // Everything the audit flags, fixed at once.
+    case "FIX_CONTRAST": {
+      const fixed = makeAccessible(state.colors, state.locked);
+      if (COLOR_KEYS.every((k) => fixed[k] === state.colors[k])) return state;
+      return withHistory(state, { colors: fixed, isCustom: true, themeName: "Custom" });
     }
 
     // Tokens pasted in from outside (an AI assistant, an existing codebase).
@@ -297,6 +320,8 @@ export const ThemeProvider = ({ children }) => {
     undo: () => dispatch({ type: "UNDO" }),
     redo: () => dispatch({ type: "REDO" }),
     reset: () => dispatch({ type: "RESET" }),
+    setColor: (key, value) => dispatch({ type: "SET_COLOR", key, value }),
+    fixContrast: () => dispatch({ type: "FIX_CONTRAST" }),
     importTheme: (importedColors, importedFonts) =>
       dispatch({ type: "IMPORT_THEME", colors: importedColors, fonts: importedFonts }),
 

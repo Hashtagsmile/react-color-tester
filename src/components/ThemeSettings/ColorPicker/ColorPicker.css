@@ -107,3 +107,21 @@
 .copied-tick {
   color: #34d399;
 }
+
+/* A swatch implicated in a failing pairing. Deliberately quiet — the Contrast
+   tab is where the explanation and the fix live. */
+.color-picker.warning {
+  border-color: rgba(248, 113, 113, 0.45);
+}
+
+.color-warning {
+  margin-left: 6px;
+  font-size: 0.82rem;
+  color: #f87171;
+  vertical-align: -1px;
+}
+
+.color-label {
+  display: inline-flex;
+  align-items: center;
+}
