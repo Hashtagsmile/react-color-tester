@@ -215,3 +215,44 @@
     max-height: none;
   }
 }
+
+/* Failure count on the Contrast tab, so it's visible from any tab. */
+.settings-tab-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  margin-left: 6px;
+  padding: 0 5px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: #fff;
+  background: #e05252;
+  border-radius: 999px;
+}
+
+/* Jump straight from the Colors tab to the explanation. */
+.colors-contrast-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 9px 11px;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  text-align: left;
+  color: #fca5a5;
+  background: rgba(248, 113, 113, 0.09);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  border-radius: var(--app-radius-sm);
+}
+
+.colors-contrast-alert:hover {
+  background: rgba(248, 113, 113, 0.14);
+}
+
+.colors-contrast-alert svg {
+  flex: 0 0 auto;
+  font-size: 0.95rem;
+}
